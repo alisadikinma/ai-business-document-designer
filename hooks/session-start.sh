@@ -1,0 +1,13 @@
+#!/bin/bash
+echo "pitch-deck-designer loaded. Skills available:"
+echo "  pitch-deck-brief     — Stage 1: discovery (gather product, audience, ask, traction, comparables; detect VC/B2B/hybrid mode)"
+echo "  pitch-deck-storyline — Stage 2: narrative design (hook, tension arc, payoff, ask, pattern match, emotional core, 10/11/13-slide story spine) — HUMAN APPROVAL GATE"
+echo "  pitch-deck-gen       — Stage 3: visual production (image prompts via GeminiGen.AI / Nano Banana Pro, Seedance 2.0 video prompts, optional Remotion configs, speaker notes)"
+echo "  pitch-deck-validate  — Stage 4: 100-point quality gate (Visual Ratio + Narrative Arc + Ask Clarity + Investor Psychology + Anti-AI-Slop)"
+echo ""
+echo "Agent available:"
+echo "  pitch-deck-designer-agent — self-contained subagent for batch / variant deck production"
+echo ""
+echo "REMINDER: Read references/global-config.md FIRST for any deck work."
+echo "REMINDER: Storyline approval is a HARD GATE — no visual generation until storyline is locked in."
+echo "REMINDER: Visual ratio >= 70% mandatory per slide. Hard-fail under 60%."

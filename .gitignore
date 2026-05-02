@@ -1,0 +1,43 @@
+# Node
+node_modules/
+*.log
+npm-debug.log*
+
+# Build outputs
+dist/
+build/
+out/
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Claude / agent local state
+.claude/
+.claude-plugin/local/
+
+# Test outputs / generated decks (per-deck artifacts)
+output/
+output-*/
+deck-*/
+*.brief.json
+*.storyline.json
+*.deck.md
+*.image-prompts.json
+*.video-prompts.json
+*.remotion.config.json
+*.speaker-notes.md
+*.validation-report.json
+
+# Python (NLM CLI artifacts if any leak)
+__pycache__/
+*.pyc

@@ -1,0 +1,32 @@
+{
+  "name": "pitch-deck-designer",
+  "description": "Visual-first investor pitch deck designer for B2B channel partners (mall operators, EOs, food courts) and equity VCs. Generates per-slide markdown spec with GeminiGen.AI image prompts, Seedance 2.0 video animation prompts, optional Remotion configs, and Indonesian-aware speaker notes. Dual-mode adaptive (B2B-adoption vs VC-fundraise) with proven 10-slide narrative arc, anti-AI-slop visual rules, and a 100-point validation gate (Visual Ratio + Narrative Arc + Ask Clarity + Investor Psychology + Anti-Slop).",
+  "version": "0.1.0",
+  "author": {
+    "name": "Ali Sadikin",
+    "url": "https://github.com/alisadikinma"
+  },
+  "homepage": "https://github.com/alisadikinma/pitch-deck-designer",
+  "repository": "https://github.com/alisadikinma/pitch-deck-designer",
+  "license": "MIT",
+  "keywords": [
+    "pitch-deck",
+    "investor-deck",
+    "presentation",
+    "ppt",
+    "slide-design",
+    "infographic",
+    "B2B-sales-pitch",
+    "VC-fundraise",
+    "Sequoia-template",
+    "Y-Combinator",
+    "Kawasaki-10-20-30",
+    "DocSend",
+    "GeminiGen",
+    "Nano-Banana-Pro",
+    "Seedance-2.0",
+    "Remotion",
+    "Indonesian-pitch",
+    "claude-code"
+  ]
+}
