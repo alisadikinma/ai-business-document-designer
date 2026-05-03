@@ -60,6 +60,83 @@ If you cover the slide with a sheet of paper and see paragraphs of text, the res
 
 ---
 
+## 2.5. Structured-data visual category (info-dense mode only)
+
+**Why this section exists:** when `density_mode: "info-dense"` is set in `brief.json`, the deck must function as a stand-alone reference document for B2B partnership / channel adoption pitches. In that mode, label-rich data structures (tables, math waterfalls, comparison rows) are not "text" — they are **dense data visualization** that operators rely on for due-diligence. Counting them as text would force minimalist-VC-style decks that fail the partnership pitch.
+
+This section defines when a structured-data block counts as VISUAL in the §2 visual-ratio calculation.
+
+### Eligible block types (count as visual when criteria below are met)
+
+| Block type | Visual when… |
+|------------|--------------|
+| **Comparison table** (2-3 column, e.g. "Without Us \| With Us \| Delta") | All cells short (≤4 lines), color-coded headers, brand palette used |
+| **Math waterfall** (Layer 1 → Layer 2 → Layer 3 → Total) | ≤4 layers, each layer color-banded, numbers large (≥24pt), arrows or dividers between |
+| **Multi-source footnote strip** (italic 9-10pt, ≤3 lines) | Visually distinct from body, source citations cite ≥3 named sources |
+| **Stat-grid card** (2×3 or 3×2 cards, big number + label + sub) | Numbers ≥48pt, colored accent stripe per card, no body paragraphs inside cards |
+| **Radial pain map** (center anchor + N pain cards radiating) | ≤9 pain cards, each card ≤3 lines, connection lines visible |
+| **Horizontal-band flow** (Layer A / Layer B / Layer C input → output) | Each band color-coded, ≤4 output cards per band, arrows between zones |
+| **Dual-stakeholder framing** (Left panel \| Center "MATCH" \| Right panel) | Equal panel widths, colored backgrounds, ✓/❌ rows ≤4 lines per panel |
+| **Pricing tier cards** (3 horizontal cards, RECOMMENDED highlighted) | ≤6 bullets per card, bullets ≤2 lines each, big price ≥36pt, one card visually emphasized |
+
+### Mandatory criteria (ALL must hold)
+
+| Criterion | Why |
+|-----------|-----|
+| Color-coded headers / accent stripes | Visual scanning > linear reading |
+| Grid alignment (cells aligned vertically + horizontally) | Misaligned grids = chaos = text-perception |
+| Brand palette used (≥3 declared hex codes per block) | Without palette, blocks become generic = AI-slop |
+| ≤4 lines per cell / card / row | More than 4 lines = paragraph = text |
+| Numbers visually emphasized (≥24pt for layer/cell totals) | Number is the visual; surrounding text is the label |
+| ≤8 cells/cards/rows in any one block | More than 8 = density crashes into noise |
+
+### Disqualifying patterns (block reverts to TEXT counting)
+
+| Pattern | Why it fails |
+|---------|--------------|
+| Bullet list ≥5 items in a single cell | That's a paragraph wearing bullet-points |
+| No color coding (all cells same color) | Visual scanning collapses |
+| Misaligned columns or rows | Reads as prose |
+| Numbers smaller than 18pt | Number must dominate the cell |
+| Multi-paragraph text in any cell | Paragraph = text, full stop |
+| No source line on contested numbers | Untagged numbers = hallucination signal at validate |
+
+### Worked example — passes (revenue waterfall with split)
+
+- Hero ecosystem header: 25% area, big number 110pt + 2 split bars → counts as visual (numbers dominate, color-coded)
+- 3-layer math waterfall: 55% area, 3 color-banded rows, ≤4 cells per row, all numbers ≥24pt → counts as visual
+- VS status quo strip: 20% area, 3 cards each ≤4 lines, color-outlined → counts as visual
+- Source line: 2% area, 9pt italic, names ≥3 sources → counts as visual (footnote strip eligible)
+- Slide title + subtitle: 5% area → text
+- **Net: ~95% visual ratio. PASS.**
+
+Without §2.5, this same slide scores ~25% visual ratio (only the hero number counts) and HARD-FAILS — even though it's a McKinsey/BCG-grade revenue waterfall that operators trust more than a single hero photo.
+
+### Worked example — fails (looks structured but isn't)
+
+- "3-column table" but each cell has a 4-line paragraph explanation → reverts to text-counting
+- "Stat grid" but numbers are 14pt and labels are 18pt → numbers don't dominate
+- "Comparison table" all cells gray, no color coding → scanning collapses, reads as prose
+- "Source line" with single source name → not a multi-source strip, doesn't qualify
+
+### Mode applicability
+
+| Density mode | §2.5 applies? |
+|--------------|---------------|
+| `minimalist` (VC default) | NO. Stick with §2 photo/chart/icon-only visual definition |
+| `info-dense` (B2B partnership default) | YES. §2.5 unlocks structured-data as visual |
+
+### Plugin enforcement
+
+`pitch-deck-validate` must check each slide marked as info-dense:
+1. Identify all structured-data blocks per slide.
+2. For each block, run mandatory-criteria check (6 criteria above).
+3. If ALL 6 pass → block area counts as visual. If any fail → block area counts as text.
+4. Sum visual ratio per §2 method.
+5. Apply same 70% / 60% thresholds.
+
+---
+
 ## 3. The 8-second rule (slide reading order)
 
 Every slide must communicate its core message within 8 seconds of first viewing, in this order:

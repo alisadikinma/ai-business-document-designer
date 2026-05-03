@@ -65,7 +65,7 @@ The skill reads the input and identifies what's covered + what's missing.
 
 ### Step 2 — Coverage check
 
-Verify all 12 brief fields are filled. If any are missing, ASK the operator (one question at a time, except where bundling is natural):
+Verify all 15 brief fields are filled. If any are missing, ASK the operator (one question at a time, except where bundling is natural):
 
 | # | Field | Question if missing |
 |---|-------|---------------------|
@@ -81,6 +81,9 @@ Verify all 12 brief fields are filled. If any are missing, ASK the operator (one
 | 10 | Founder–market fit | "Why YOU specifically? What did you ship before that's relevant?" |
 | 11 | Meeting date / decision deadline | "When is the pitch meeting / when does the decision need to land?" |
 | 12 | Constraints | "Anything we can't say or must say? (NDA, sensitive customers, language requirement, page limit, etc.)" |
+| 13 | **Density mode** | "Will the audience read this deck before the meeting (info-dense) or only during a live pitch (minimalist)? Default: info-dense for B2B partnership, minimalist for VC. Confirm." |
+| 14 | **Brand palette** | "Provide brand hex codes for: background, primary, accent, ink (text). Optional: secondary, warning. If none, I'll use the Indonesian B2B fallback `bg #F8F4ED · primary #0F1F3D · accent #F25C24 · ink #0E1B2E`." |
+| 15 | **Founder + partner assets** | "Provide: (a) founder face files (PNG/JPG, ≥1024×1024), (b) brand logo file, (c) partner logo file (if partnership pitch). Required for cover slide + closing CTA." |
 
 ### Step 3 — Mode detection (per `deck-frameworks.md` §5)
 
@@ -212,6 +215,33 @@ Output structure:
     "fx_baseline_idr_per_usd": 16000,
     "compliance_signals_to_surface": ["BI license", "BI-SNAP", "ISO 27001", "Kominfo data residency"]
   },
+  "density_mode": "info-dense",
+  "brand_palette": {
+    "background": "#F8F4ED",
+    "primary":    "#1AB8B6",
+    "accent":     "#FF8C42",
+    "secondary":  "#5860D6",
+    "warning":    "#C53030",
+    "ink":        "#1A2540"
+  },
+  "typography": "Plus Jakarta Sans",
+  "founders": [
+    {
+      "name": "Ali Sadikin",
+      "role": "Founder · Indusia.ai",
+      "credential": "UN-UNCTAD Alibaba Fellow · AI Generalist Expert",
+      "face_file": "ref/alisadikinma-face.png",
+      "wa": "+62 813-6-811-811",
+      "email": "ali.sadikincom85@gmail.com",
+      "web": "alisadikinma.com",
+      "ig": "@alisadikinma",
+      "linkedin": "@alisadikinma"
+    }
+  ],
+  "partner_logos": [
+    { "label": "Indusia.ai", "file": "ref/indusia-logo.png" },
+    { "label": "GO!Market", "file": "ref/gomarket-logo.jpg" }
+  ],
   "constraints": {
     "page_limit": 11,
     "nda_terms": "{any NDA constraint}",
@@ -223,6 +253,16 @@ Output structure:
   ]
 }
 ```
+
+### New required fields in brief.json (Schema 1.1)
+
+| Field | Type | Required | Notes |
+|-------|------|----------|-------|
+| `density_mode` | enum | YES | `"minimalist"` \| `"info-dense"`. Defaults: `vc` mode → minimalist; `b2b` / `hybrid` → info-dense |
+| `brand_palette` | object | YES | ≥4 hex codes (`background`, `primary`, `accent`, `ink`). Plugin auto-injects into every image prompt |
+| `typography` | string | NO | Default font family (Plus Jakarta Sans / Inter / Geist). Defaults to "Plus Jakarta Sans" if absent |
+| `founders[]` | array | YES (if partnership) | Each entry: `name`, `role`, `face_file`, `wa`, optional socials |
+| `partner_logos[]` | array | YES (if partnership) | Each entry: `label`, `file` |
 
 Save to: `{output_dir}/brief.json` (default: current working directory or `/tmp/`).
 
@@ -250,6 +290,11 @@ DO NOT run /pitch-deck-gen yet — storyline must come first.
 | Operator skips meeting date | Hard-stop — without date the storyline cannot calibrate |
 | Brief input contains banned vocabulary | Rephrase + alert operator before storing |
 | Two skills running in parallel | Hard-stop — brief must complete before storyline starts |
+| `density_mode` not declared by operator | Apply default per `mode` (vc → minimalist, b2b/hybrid → info-dense) and surface for confirmation |
+| `brand_palette` missing | Apply default per `mode` + `indonesian_context` from `global-config.md` §3.6 fallback table; surface for confirmation |
+| `brand_palette` contains <4 hex codes | Refuse — push for the missing colors (background, primary, accent, ink) |
+| Partnership pitch but no `partner_logos[]` | Refuse — partnership decks REQUIRE both logos for cover lockup |
+| Partnership pitch but no `founders[]` face files | Refuse — partnership decks REQUIRE face files for cover badges + closing CTA |
 
 ---
 
