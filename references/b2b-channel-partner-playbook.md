@@ -214,6 +214,81 @@ Cut these from any B2B deck — they trigger immediate skepticism:
 
 ---
 
+## 9.5. Dual-stakeholder framing (partnership pitches)
+
+When the deck pitches a **partnership** (not just a sale) — i.e. both sides will share economics, brand co-presence, or operational responsibilities — the deck must visually frame BOTH parties on every body slide. This is different from a standard B2B sale, where the buyer is the only stakeholder visible.
+
+### When dual-stakeholder framing is required
+
+| Trigger | Example |
+|---------|---------|
+| Revenue split between platform + partner | Indusia POS × GO!Market (50:50 AI rev share) |
+| Co-branded product (white-label, custom skin) | "GO!Cash POS" branded skin from Indusia base |
+| Joint go-to-market (each party brings something the other can't) | Indusia brings tech, GO!Market brings tenants |
+| Channel partnership where partner relays value to end customer | Salesforce ISV partnership model |
+| Recoupable investment or "saya commit Rp X, kamu commit deadline Y" pattern | Partnership setup fee with revenue-share recoup |
+
+### Visual patterns to use
+
+**Pattern 1 — Match Framing (Slide 5 / Market):**
+```
+LEFT PANEL (primary color)        CENTER PANEL          RIGHT PANEL (accent color)
+{Stakeholder A label}             "="                  {Stakeholder B label}
+{A's strengths bullets ✓}         "MATCH"              {B's strengths bullets ✓}
+                                   "perfect             
+                                    collaboration"
+```
+
+**Pattern 2 — Two-Side Bridge (Slide 1 / Foreshadow):**
+```
+LEFT PANEL (secondary color)      CENTER PANEL          RIGHT PANEL (accent color)
+{A's pains ❌}                    {Brand bridge        {B's pains ❌}
+{What A needs}                     vertical arrow}     {What B needs}
+                                   {3-layer summary}
+```
+
+**Pattern 3 — Revenue Split Visualization (Slide 7 / Money):**
+```
+HERO ECOSYSTEM TOTAL
+        (large number)
+─────────────────────────────────────
+INDUSIA SHARE        |  GO!MARKET SHARE
+{50% bar in primary} |  {50% bar in accent}
+{revenue range}      |  {revenue range}
+─────────────────────────────────────
+3-LAYER MATH BREAKDOWN
+{per-layer split per stakeholder}
+```
+
+**Pattern 4 — Dual Founder Cards (Cover slide 0 + Founder slide):**
+```
+{Founder A face badge      |     {Founder B face badge
+ + name + role             |       + name + role
+ + tagline}                |       + tagline}
+(primary color card)       |     (accent color card)
+```
+
+### Hard rules
+
+| Rule | Why |
+|------|-----|
+| Both stakeholders MUST be visually represented on cover, market, money, and closing slides | If only one side is visible, the other side reads as "vendor" rather than "partner" |
+| Brand colors MUST signal stakeholder allegiance (primary = us, accent = partner OR vice versa) | Visual scanning collapses without color allegiance |
+| Equal panel width (50/50 or 35/30/35) on dual-stakeholder slides | Asymmetric panels imply asymmetric power |
+| Revenue split must be EXPLICIT — show both numbers, not just net | "Net new revenue" hides whose share is what |
+| Founder/leader from BOTH sides should appear on cover + closing | Real-relationship signal vs. vendor relationship |
+
+### Anti-patterns
+
+| Anti-pattern | Why it fails |
+|--------------|--------------|
+| Cover only shows our brand (not partner brand) | Reads as "we're selling to them", not "we're partnering with them" |
+| Money slide shows only "their net new revenue" | They want to see they're getting fair share, not just a number |
+| Closing slide is one-sided (only our contact info) | Implies relationship is one-directional |
+| Brand colors not allegiance-coded (random per slide) | Cognitive load + dilutes partner co-presence |
+
+---
+
 ## 10. B2B validation checklist
 
 Before approving a B2B-mode deck, verify:
@@ -228,5 +303,8 @@ Before approving a B2B-mode deck, verify:
 - [ ] All currency in IDR primary
 - [ ] Source lines on every chart
 - [ ] No banned vocabulary (Bahasa or English)
+- [ ] **If partnership pitch:** dual-stakeholder framing visible on cover, market, money, closing slides (per §9.5)
+- [ ] **If partnership pitch:** brand color allegiance consistent (primary = us, accent = partner)
+- [ ] **If partnership pitch:** revenue split EXPLICIT — both shares visible, not just net
 
 If any unchecked, send back to relevant upstream skill.

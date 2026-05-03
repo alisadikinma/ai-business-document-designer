@@ -43,12 +43,79 @@
 |---------|-------|
 | `visual_ratio_minimum` | 70% per slide |
 | `visual_ratio_hardfail` | < 60% per slide → automatic reject |
-| `headline_word_max` | 10 words |
-| `subtext_word_max` | 25 words per slide |
-| `bullets_per_slide_max` | 3 (and only if no other format works) |
+| `headline_word_max` | 10 words (minimalist) / 12 words (info-dense) |
+| `subtext_word_max` | 25 words (minimalist) / 40 words per zone, ≤2 zones (info-dense) |
+| `bullets_per_slide_max` | 3 (minimalist) / 6 in structured-data zones (info-dense) |
 | `body_paragraph_forbidden` | true (NEVER write paragraphs on slides) |
 
 > **Cognitive weight calculation:** approximate visual area / slide area. A slide with a hero image filling 60% of the canvas + 8-word headline = ~85% visual ratio. A slide with 4 bullet lines + small icon = ~25% visual ratio (FAIL).
+
+> **Structured-data exception (info-dense mode only):** label-rich data structures — comparison tables, math waterfalls, multi-source footnote strips, stat-grid cards, radial pain maps — count as VISUAL when they meet the §2.5 structured-data criteria in `visual-language.md` (color-coded headers, grid alignment, brand palette, ≤4 lines per cell). See §3.5 below.
+
+---
+
+## 3.5. Density mode (info-dense vs minimalist)
+
+Pitch decks have two operational modes with different word-count, structure, and visual-ratio rules. **Default is `minimalist` for VC, `info-dense` for B2B partnership and hybrid.**
+
+| Setting | `minimalist` (VC default) | `info-dense` (B2B partnership default) |
+|---------|---------------------------|----------------------------------------|
+| `headline_word_max` | 10 | 12 |
+| `subtext_word_max` | 25 | 40 (sub-text per zone, ≤2 zones per slide) |
+| `bullets_per_slide_max` | 3 | 6 (only inside structured-data zones, color-coded) |
+| `data_table_rows_max` | not allowed | 8 |
+| `math_waterfall_steps_max` | not allowed | 4 (Layer 1 → Layer 2 → Layer 3 → Total) |
+| `source_strip_lines_max` | 1 | 3 (multi-source footnote, italic 9–10pt) |
+| `visual_ratio_minimum` | 70% (visual = photo/chart/icon) | 70% (visual = photo/chart/icon **OR** structured-data per §2.5 in `visual-language.md`) |
+| `slide_zones_max` | 3 (hero, headline, footer) | 7 (top-strip, hero, left-panel, center-panel, right-panel, comparison-row, footnote-strip) |
+| Default `slide_1_3_style` | Photo (Editorial / Photorealistic) | Infographic-flat (cover with brand atmosphere; problem as radial; solution as 3-band flow) |
+
+### How to choose density mode
+
+1. Audience reads the deck **before** the meeting? → `info-dense` (operator has time to absorb).
+2. Audience reads **during** a 5-minute live pitch? → `minimalist` (cognitive load matters).
+3. Deck is a **reference document** sent over email + walked through async? → `info-dense`.
+4. Deck must **stand alone** without speaker narration (cold to mall ops, EO, BizDev, channel partners)? → `info-dense`.
+
+The banned vocab in §4 below applies to BOTH modes. Word-count limits relax in info-dense mode but the AI-slop word ban does NOT relax.
+
+---
+
+## 3.6. Brand palette (REQUIRED, not suggestion)
+
+Every deck MUST declare a brand palette in `brief.json.brand_palette` before `pitch-deck-gen` runs. The plugin auto-injects these hex codes into every image prompt verbatim — no inference, no "warm-orange-ish".
+
+### Required structure
+
+```json
+"brand_palette": {
+  "background": "#F8F4ED",     // Required — slide canvas (off-white / cream / near-black)
+  "primary":    "#1AB8B6",     // Required — brand identity (logos, headers, hero)
+  "accent":     "#FF8C42",     // Required — signal/callout (numbers, CTAs)
+  "secondary":  "#5860D6",     // Optional — second-tier highlight (sparingly)
+  "warning":    "#C53030",     // Optional — alert/risk callouts only
+  "ink":        "#1A2540"      // Required — primary text color (titles, body)
+}
+```
+
+### Hard rules
+
+| Rule | Why |
+|------|-----|
+| ≥ 4 hex codes (`background`, `primary`, `accent`, `ink`) MANDATORY | Without these, prompts default to AI-slop palettes |
+| Hex codes injected **verbatim** into every image prompt | "Use deep teal" → AI guesses → inconsistent. "Use #1AB8B6" → exact match |
+| Same palette on every slide of the deck | Cross-slide consistency = brand recall |
+| Reject palettes containing forbidden patterns from §5 below | Purple-blue gradients, neon multi-stops, pure-black bg = banned |
+
+### Default palettes (when operator has no preference)
+
+| Mode | Default palette |
+|------|----------------|
+| Indonesian B2B partnership | `bg #F8F4ED · primary #0F1F3D · accent #F25C24 · ink #0E1B2E` (Indonesian-flag adjacent) |
+| Indonesian VC | `bg #F8F7F3 · primary #0F1F3D · accent #F25C24 · ink #0E1B2E` |
+| International VC | `bg #FAFAF9 · primary #18181B · accent #2563EB · ink #09090B` |
+
+> **Operator override always wins.** Defaults are last-resort fallbacks if the operator has no opinion.
 
 ---
 
@@ -145,10 +212,12 @@ These visual clichés are forbidden in image prompts:
 | `default_model` | nano-banana-pro |
 | `default_aspect_ratio` | 16:9 (landscape — standard slide format) |
 | `default_resolution` | 2K |
-| `default_style` | Photorealistic (for product / venue / team), Editorial (for problem / vision), Infographic-flat (for charts / data) |
+| `default_style` (minimalist mode) | Photorealistic (product / venue / team), Editorial (problem / vision), Infographic-flat (charts / data) |
+| `default_style` (info-dense mode) | **Infographic-flat for slides 0–3 and 5–8** (cover, problem, solution, market, product, ROI). Photo only for team slide (real founder photos via `file_urls`). |
 | `default_output_format` | png (lossless for slides) |
+| `safety_filter_aware` | true — apply `references/safety-filter-playbook.md` patterns when prompts include real-person reference images |
 
-See `image-prompt-templates.md` for per-slide-type formulas.
+See `image-prompt-templates.md` for per-slide-type formulas and `safety-filter-playbook.md` for MINOR_UPLOAD / safety-filter mitigation.
 
 ---
 

@@ -23,12 +23,13 @@ Four skills + one agent + 12 reference files. The 4-stage pipeline (brief → st
 | `references/storyline-frameworks.md` | Narrative arc design — hook formulas, tension-build patterns, emotional core selection, pattern-match library, story spine templates. |
 | `references/deck-frameworks.md` | 10-slide arc + alternative frameworks (Sequoia, YC, Kawasaki, Founder Institute) with dual-mode emphasis tables. |
 | `references/investor-psychology.md` | First-90-second filters, 10 standard investor questions, pattern-matching biases, B2B vs VC psychology differences. |
-| `references/visual-language.md` | Cognitive load research, text-to-visual ratio rules, typography for projection, color, charts, anti-AI-slop visual rules. |
-| `references/image-prompt-templates.md` | GeminiGen.AI / Nano Banana Pro prompt formulas per slide type, with worked examples and reference image patterns |
+| `references/visual-language.md` | Cognitive load research, text-to-visual ratio rules (with §2.5 structured-data exception for info-dense mode), typography for projection, color, charts, anti-AI-slop visual rules. |
+| `references/image-prompt-templates.md` | GeminiGen.AI / Nano Banana Pro prompt formulas per slide type — density-mode-aware (Photo for minimalist / Infographic-flat for info-dense), brand-anchor cover (Slide 0), CTA composite (Slide N), composite reference patterns (face-as-badge vs face-on-body), Schema 2.0 with revision tracking |
+| `references/safety-filter-playbook.md` | MINOR_UPLOAD + IDENTITY_PRESERVATION mitigation — synthetic-atmosphere pattern, age-locking phrases, per-error fallback ladders. REQUIRED for any slide with face/logo `files[]` |
 | `references/seedance-prompt-templates.md` | Seedance 2.0 4-block prompt framework adapted for slide motion (demos, animated charts, transitions) |
 | `references/remotion-config-templates.md` | Remotion JSON templates for programmatic motion (animated counters, live data, parallax scrolling) |
 | `references/indonesian-context.md` | Bahasa pitch culture, IDR formatting, Indonesian VC landscape, compliance signals (BI, OJK, ISPO, ISO) |
-| `references/b2b-channel-partner-playbook.md` | B2B-mode specifics: ROI calculator structure, risk reversal, integration cost, case study format, revenue share models |
+| `references/b2b-channel-partner-playbook.md` | B2B-mode specifics: ROI calculator, risk reversal, case study format, revenue share models, dual-stakeholder framing patterns (§9.5) |
 | `references/scoring-rubric.md` | 100-point validation gate — exact thresholds, traffic-light bands, hard-fail rules |
 | `scripts/compile-references.sh` | Builds compiled reference bundles for split-pipeline injection (future) |
 | `README.md` | Repo README |
@@ -116,7 +117,7 @@ STAGE 4 — pitch-deck-validate (QUALITY GATE)
 |-------|-------|-----------|
 | 1 | `/pitch-deck-brief` | `global-config.md` (always) + `b2b-channel-partner-playbook.md` (if B2B detected) + `indonesian-context.md` (if Indonesian) |
 | 2 | `/pitch-deck-storyline` | `global-config.md` + `storyline-frameworks.md` + `investor-psychology.md` + `research/investor-pitch-deck-best-practices-2026.md` + `deck-frameworks.md` |
-| 3 | `/pitch-deck-gen` | `global-config.md` + `visual-language.md` + `image-prompt-templates.md` + `seedance-prompt-templates.md` (if motion=true) + `remotion-config-templates.md` (if programmatic_motion=true) |
+| 3 | `/pitch-deck-gen` | `global-config.md` + `visual-language.md` + `image-prompt-templates.md` + `safety-filter-playbook.md` (REQUIRED for any slide with face/logo `files[]`) + `b2b-channel-partner-playbook.md` (if B2B / partnership) + `seedance-prompt-templates.md` (if motion=true) + `remotion-config-templates.md` (if programmatic_motion=true) |
 | 4 | `/pitch-deck-validate` | `global-config.md` + `scoring-rubric.md` + `visual-language.md` (anti-slop) + `investor-psychology.md` (pre-empt check) |
 
 Each row adds (+) to base. Multiple tasks in one step = read all listed files.
@@ -137,6 +138,12 @@ These are the failures observed when a generic LLM is asked to "make a pitch dec
 | 30-slide deck because every idea got its own slide | 10-slide hard cap (extend only via appendix) |
 | Forgot the ask slide entirely | Rule 7 + slide 10 mandate |
 | Closing on "Thank You" | Final-frame rule in `visual-language.md` (last frame = the ask, not a thank-you) |
+| **Cover slide rendered as generic stock-photo** (most common B2B partnership failure) | **Density-mode-aware Slide 0 brand-anchor template** in `image-prompt-templates.md` §3 |
+| **Info-dense partnership deck rejected as "too text-heavy"** | **§2.5 structured-data visual exception** in `visual-language.md` |
+| **Founder face composite triggers MINOR_UPLOAD safety filter** | **Synthetic-atmosphere pattern + age-locking** in `safety-filter-playbook.md` |
+| **Brand colors drift between slides** | **`brand_palette` REQUIRED + verbatim hex injection** in `global-config.md` §3.6 |
+| **Bad style-anchor poisons all subsequent slides via `ref_history`** | **Step 4.5 quality gate** in `pitch-deck-gen` SKILL.md |
+| **Partnership deck shows only one stakeholder** | **Dual-stakeholder framing patterns §9.5** in `b2b-channel-partner-playbook.md` |
 
 ## Key Pipeline Behaviors
 
