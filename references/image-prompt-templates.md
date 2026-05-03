@@ -4,9 +4,10 @@
 
 > **Density mode is the most important decision.** Read `brief.json.density_mode` first.
 > - `minimalist` (VC default) → use Photo formulas (slides 1–3 photo-led, charts elsewhere).
-> - `info-dense` (B2B partnership default) → use Infographic-flat formulas with brand-anchor cover (Slide 0), radial pain map (Slide 2), 3-band flow (Slide 4), revenue waterfall (Slide 7), CTA composite (Slide N). Photo reserved for team slide.
+> - **`humanized-info-dense` (B2B partnership DEFAULT v8.1+) → use Formula C (Humanized Hybrid) per §2.5. 40% human face + 60% infographic per body slide. MANDATORY for slides 1-5. See Indusia POS case study referenced in §2.5.4.**
+> - `info-dense` (legacy / opt-out only) → use Formula B (Infographic-flat). NO humans. Reserved for technical appendix or when operator explicitly opts out of humanization.
 >
-> Plugin defaults `info-dense` for `mode: b2b` and `hybrid`. Operator must explicitly request `density_mode: "minimalist"` to override.
+> Plugin defaults `humanized-info-dense` for `mode: b2b` and `hybrid` (changed from `info-dense` in v8.1). Operator must explicitly request `density_mode: "minimalist"` (VC) or `density_mode: "info-dense"` (no humans) to override.
 
 ---
 
@@ -86,6 +87,153 @@ prompt_pattern: [subject] [action] [stylistic reference — e.g. Wall Street Jou
 ```
 
 > **Avoid:** style=Anime, style=3D-render, style=Cyberpunk for investor decks. They signal hobbyist energy.
+
+---
+
+## 2.5. Humanization Layer (validated v8.1 — DEFAULT for B2B partnership)
+
+> **The single most important learning from Indusia POS × GO!Market deck (May 2026):** pure infographic body slides (no humans) consistently LOST at A/B selection. Humanized variants (40% face + 60% infographic) consistently WON. Pitch decks need to trigger emotion, not just transfer data. This section is mandatory reading before generating any body slide in `humanized-info-dense` mode.
+
+### 2.5.1. The 40/60 Rule (HARD GATE)
+
+Every body slide (typically slides 1-5 in a 10-13 slide deck) MUST allocate canvas as:
+- **~40% canvas to a human face/character zone** (photographic or editorial portrait)
+- **~60% canvas to infographic data zone** (bento cards, radial maps, layer flows, decision matrices)
+
+Pure infographic slides (no humans) in body section = HARD FAIL at validate. Cover (slide 0) and CTA (slide N) follow separate Pattern B face-on-body composite rules — see §4.5.
+
+### 2.5.2. Two layout patterns (operator chooses per slide OR generates both for A/B)
+
+**Approach B — Split 40/60 side-by-side**
+- LEFT 40% canvas: photographic/editorial character zone (mid-shot or waist-up portrait)
+- RIGHT 60% canvas: existing infographic content (compressed slightly to fit)
+- Subtle vertical fade between halves, no hard divider
+- Character looks toward data side OR toward viewer (calls audience in)
+- Best for: slides where character represents a SINGLE protagonist (operator, tenant, customer) and the data describes their world
+
+**Approach C — Character Center + Data Radial**
+- Character anchors center 35-45% of canvas
+- Existing infographic data re-flows AROUND character as floating bento cards / radial labels
+- Character becomes 'protagonist' of the data story
+- Best for: slides with radial data structures (pain maps, decision matrices) OR when character literally represents the center of the data (e.g. "operator AT the helm of 4 AI decisions")
+
+When in doubt, generate BOTH B and C variants per slide. Cost: 2× per slide at gen ($0.16 instead of $0.08). Saves rework if first pick misses.
+
+### 2.5.3. Casting rules (NON-NEGOTIABLE for body slides)
+
+1. **Generic LOCAL SME archetypes only** — match the deck's geographic context (Indonesian SMEs for Indonesian B2B; American small business owners for US B2B; etc.). NEVER generic Asian/Western stock-photo casting.
+2. **NO real-face files attached for body slides** — only cover (slide 0) and CTA (slide N) attach real founder face files. Body slides generate fresh archetypes from text description.
+3. **Age-locked adult, NEVER young/youthful/teen** — explicit "age 28-35 (adult lock)" or "in their late thirties" or "in their mid-forties" in prompt. NEVER use "young", "youthful", "fresh-faced" — those trigger MINOR_UPLOAD safety filters.
+4. **NO duplicate character archetype across slides** — each slide gets a fresh archetype to avoid 'same person everywhere' uncanny valley.
+5. **Expression must match emotional anchor** of the slide:
+   - Hope / Pertemuan slide → hopeful, slight engaged smile, eye-contact pre-handshake
+   - Overwhelm / Pain slide → tired-but-focused, internal weight, NOT looking at camera
+   - Opportunity / Market slide → bustling crowd, candid documentary energy
+   - Solution / Relief slide → focused mid-action, slight satisfied smile
+   - Confidence / Co-pilot slide → confident-analytical, slight smile of recognition
+
+### 2.5.4. The 3-layer iconography hierarchy (mandatory pairing with humans)
+
+Every humanized body slide MUST contain THREE distinct visual layers that coexist:
+
+1. **Human character zone** = emotional anchor (instant "this is for ME" recognition)
+2. **Infographic icon zone** = scan-speed pictogram (instant category/concept recognition in <1 second)
+3. **Data label / number zone** = substantive proof (rewards 5-second inspection)
+
+Removing ANY layer breaks the slide. Human + data with NO icons = sterile. Icons + data with NO human = no emotion. Human + icons with NO data = decorative.
+
+**Icon style locked**: flat geometric pictogram, single-color OR 2-color, 2-3px stroke, rounded-square or circular badges, brand-color tinted. NO 3D, NO gradients, NO emoji, NO photographic icons.
+
+**Color logic** (apply consistently per deck, document in brand_palette):
+- Orange (warm accent) = pain / tenant tooling / problem context
+- Teal (primary) = solution / payment / core offering
+- Blue-purple (secondary) = AI / data intelligence / strategic layer
+- Red (warning) = alert / decline / risk
+
+**Human-icon separation contract**: humans live in DEDICATED character zones, icons live INSIDE data cards. NEVER overlap or substitute.
+
+### 2.5.5. TEXT RENDERING RULE template (CRITICAL — paste into every humanized prompt)
+
+Nano Banana Pro will render layout markers and character descriptions as visible text on the slide unless explicitly forbidden. Every humanized prompt MUST include this directive near the top:
+
+```
+=== TEXT RENDERING RULE (CRITICAL) ===
+Only render text strings that appear INSIDE single quotes ' ' below. Do NOT render any layout descriptions, zone names, percentage measurements, color hex codes, font names, point sizes, positioning words (top/middle/bottom/left/right), section headers, character labels, age annotations, ethnicity labels, archetype labels, or photo captions on the rendered image. The character portrait/vignette must have NO text overlay describing the character. Preserve special characters in brand names (like '!' in 'GO!MARKET') EXACTLY — never substitute with letters.
+```
+
+Validated bug pattern (Indusia POS deck): without this rule, model rendered "Generic Indonesian female F&B tenant ~25-32 years" as a caption ON the vignette. With this rule + restructured character descriptions in scene-direction language ("Show an Indonesian woman in her late twenties working at her food booth..."), captions disappeared.
+
+### 2.5.6. Anti-caption-bleed character description pattern
+
+❌ **BAD** (triggers caption-bleed):
+```
+Generate a photographic vignette of generic Indonesian female F&B tenant age 25-32 (adult lock), kaos + apron, holding smartphone shooting photo of plated dish.
+```
+The words "generic", "(adult lock)", "age 25-32", "F&B tenant" all read as label/caption descriptors to the model.
+
+✅ **GOOD** (scene-direction language):
+```
+Show an Indonesian woman in her late twenties working at her food booth — kaos polos with light apron, hijab modest, leaning over the counter shooting a smartphone photo of a plated dish on the booth surface. Focused expression, mid-action, slight satisfied smile.
+```
+Natural narrative voice; age conveyed implicitly via "in her late twenties"; behavioral focus over categorical labels.
+
+### 2.5.7. MINOR_UPLOAD safety mitigation (REQUIRED)
+
+The most common safety filter trigger in pitch deck production. Every humanized prompt with venue references OR crowd scenes MUST include:
+
+```
+=== ABSOLUTE CONTENT RULE — NO MINORS ===
+All figures must read as adult only. NO children, NO teenagers, NO minors, NO families with kids. Background figures rendered at less than 8% sharpness with abstract bokeh blur.
+```
+
+Per `safety-filter-playbook.md`: highest-risk combinations are (a) real-person face files attached + venue photo with crowd attached, (b) Indonesian flag + skyline + face files attached (triggers "identifiable public figures" filter — see Indusia POS Cover v2A failure case).
+
+**Fallback pattern** (always include in `fallback_strategy` field): "If MINOR_UPLOAD triggers: drop venue references, render synthetic adult-only crowd from scratch. If still fails: drop face files, render with logos + text + atmosphere only, composite face badges manually."
+
+### 2.5.8. Cover (slide 0) heritage costume + national flag pattern (validated v8.1)
+
+For Indonesian / regional B2B partnership covers, Pattern B face-on-body composite with heritage costume + national flag in atmosphere is the validated DEFAULT (Indusia POS Cover v2B Constellation case study):
+
+- Founders rendered in heritage wardrobe (Indonesian batik mega mendung blazer for Ali, kemeja batik tulis Sogan for Johari)
+- Small national flag pin on lapel/collar of each founder
+- National flag billowing in background atmosphere (upper-right, ~70-85% opacity)
+- Hero text + brand colors as usual
+- ALWAYS provide Pattern A fallback (face-as-badge, no body) in `fallback_strategy` for safety filter retry
+
+Adapt to local context: batik (Indonesia), barong tagalog (Philippines), áo dài (Vietnam), kanga (East Africa), guayabera (Latin America), etc.
+
+### 2.5.9. CTA (slide N) audience crowd witness pattern (validated v8.1)
+
+For closing CTA, founders + audience-archetype crowd witnessing the partnership in soft-focus mid-ground transforms the slide from "2 people handshake" → "2 people committing to hundreds of [target audience] who are waiting" (Indusia POS Slide 09 v2 case study):
+
+- Founders foreground in matching heritage costume (continuity from cover slide)
+- Mid-ground: 8-12 adult target-audience archetypes in soft-focus (UMKM tenants for Indusia, mall operators for ChannelOps deck, etc.)
+- Crowd at <8% sharpness with abstract bokeh — no recognizable individual faces
+- Crowd expression: hopeful, attentive, expectant — "we are ready, waiting for you"
+- Background bazaar/venue evening atmosphere with festoon lights
+- Bottom 40% preserved as contact info card strip
+
+### 2.5.10. Style anchor pair gate (modified for humanized mode)
+
+In `humanized-info-dense` mode, generate slide 1 BOTH variants (Approach B + Approach C) FIRST as the style anchor pair. Surface to operator. Operator picks one approach OR keeps both (rare). Selected approach propagates `ref_history` to remaining body slides 2-5.
+
+This differs from minimalist (slide 1 single variant) and pure info-dense (slide 0 single variant) anchor patterns.
+
+### 2.5.11. Case study reference — Indusia POS × GO!Market deck (May 2026)
+
+Validated humanized-info-dense pattern. 13 slides total, all selected variants archived at `D:\Projects\Indusia-POS\pitch-deck\assets\` (rejected variants at `assets\backup\`):
+
+| Slide | Selected approach | Why it won vs rejected |
+|-------|-------------------|------------------------|
+| 00 Cover | v2B Constellation + batik + flag | Heritage costume + flag transformed slide from generic-tech to "this is OUR Indonesia" |
+| 01 Foreshadow | Approach C (character-center + arrow column) | Characters AS the literal bridge metaphor stronger than side-by-side split |
+| 02 The Gap | Approach B (split portrait + radial pain map) | Editorial portrait of overwhelmed operator + 9 radial pains landed harder than character-at-center |
+| 03 Market Opp | Approach B (split crowd + bento) | Real-feeling Indonesian crowd left + 6 data cards right validated "this market is real, not abstract" |
+| 04 Three-Layer | Approach C (embedded vignette per layer) | One human moment per layer (tenant shoot foto + visitor scan QR + operator review dashboard) made each layer concrete |
+| 05 AI Brain Action | Approach C ("AT THE HELM" + 4 corner cards) | Operator at center with 4 decisions floating around her = co-pilot metaphor literalized |
+| 09 CTA | Handshake + UMKM crowd witness + flag pins | Crowd of waiting tenants behind handshake transformed "deal" → "commitment to ecosystem" |
+
+Pure infographic v2 variants (no humans) for slides 1-5 all rejected at `assets\backup\`. Cover v1 (no batik, no flag) also rejected. CTA v1 (no crowd) also rejected.
 
 ---
 

@@ -121,19 +121,65 @@ Without §2.5, this same slide scores ~25% visual ratio (only the hero number co
 
 ### Mode applicability
 
-| Density mode | §2.5 applies? |
-|--------------|---------------|
-| `minimalist` (VC default) | NO. Stick with §2 photo/chart/icon-only visual definition |
-| `info-dense` (B2B partnership default) | YES. §2.5 unlocks structured-data as visual |
+| Density mode | §2.5 applies? | §2.6 humanization required? |
+|--------------|---------------|------------------------------|
+| `minimalist` (VC default) | NO. Stick with §2 photo/chart/icon-only visual definition | N/A — already photo-led |
+| `humanized-info-dense` (B2B partnership DEFAULT v8.1+) | YES + §2.6 mandatory | YES — see §2.6 |
+| `info-dense` (legacy / opt-out only) | YES | NO — pure infographic allowed |
 
 ### Plugin enforcement
 
-`pitch-deck-validate` must check each slide marked as info-dense:
+`pitch-deck-validate` must check each slide marked as info-dense / humanized-info-dense:
 1. Identify all structured-data blocks per slide.
 2. For each block, run mandatory-criteria check (6 criteria above).
 3. If ALL 6 pass → block area counts as visual. If any fail → block area counts as text.
 4. Sum visual ratio per §2 method.
 5. Apply same 70% / 60% thresholds.
+6. **In `humanized-info-dense` mode: ADDITIONALLY check §2.6 humanization gate per body slide.**
+
+---
+
+## 2.6. Humanization gate (humanized-info-dense mode only — HARD RULE v8.1+)
+
+> Validated against Indusia POS × GO!Market deck (May 2026). Pure infographic body slides (no humans) consistently REJECTED at A/B selection. The 40/60 face/infographic split is now the B2B default. See `image-prompt-templates.md` §2.5 for full rationale + per-slide formulas.
+
+### The rule
+
+Every body slide (typically slides 1-5 in a 10-13 slide deck) MUST contain:
+- **A human face/character zone occupying ~40% of canvas** (photographic mid-shot OR editorial portrait)
+- **An infographic data zone occupying ~60% of canvas** (bento cards, radial maps, layer flows, decision matrices)
+
+### Two valid layout patterns
+
+| Pattern | Spec | Best for |
+|---------|------|----------|
+| **Approach B — Split 40/60** | LEFT 40% character zone + RIGHT 60% infographic zone, subtle vertical fade between | Single protagonist + their world data |
+| **Approach C — Character-center radial** | Character anchors center 35-45% + data radiates around as floating bento cards | Radial data structures (pain maps, decision matrices, "AT THE HELM" framing) |
+
+### Cover (slide 0) and CTA (slide N) follow separate patterns
+
+- **Cover slide 0**: Pattern B face-on-body composite + heritage costume + national flag in atmosphere (per `image-prompt-templates.md` §2.5.8)
+- **CTA slide N**: Founders + audience-archetype crowd witness + heritage costume continuity (per `image-prompt-templates.md` §2.5.9)
+
+### Validate gate
+
+`pitch-deck-validate` must check each body slide in humanized-info-dense mode:
+1. Identify the human character zone (face/portrait/figure).
+2. Estimate area % of canvas occupied by character zone (target: 35-45%).
+3. If character zone < 30% of canvas → HARD FAIL (insufficient humanization).
+4. If character zone > 50% of canvas → SOFT FAIL (over-humanization, data loses prominence).
+5. If NO character zone present → HARD FAIL (pure infographic rejected in humanized mode).
+6. Verify character expression matches slide's emotional anchor (per `image-prompt-templates.md` §2.5.3).
+7. Verify 3-layer hierarchy present: human + icons (≥3 distinct pictograms) + data labels (per §2.5.4).
+
+### Anti-patterns (HARD FAIL)
+
+- Pure infographic body slide with NO human (regression to legacy info-dense)
+- Human as decorative photo strip (top 25%) without 40% allocation
+- Multiple humans crammed into <20% canvas (visual noise, no emotional anchor)
+- Stock-photo Western corporate types in non-Western context (must match deck geography)
+- Real-person face files attached to BODY slides (cover/CTA only — body slides use generic archetypes)
+- Caption-bleed text describing the character on the slide (per §2.5.5 TEXT RENDERING RULE)
 
 ---
 

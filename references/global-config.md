@@ -54,30 +54,39 @@
 
 ---
 
-## 3.5. Density mode (info-dense vs minimalist)
+## 3.5. Density mode (humanized-info-dense vs info-dense vs minimalist)
 
-Pitch decks have two operational modes with different word-count, structure, and visual-ratio rules. **Default is `minimalist` for VC, `info-dense` for B2B partnership and hybrid.**
+Pitch decks have THREE operational modes. **Default is `humanized-info-dense` for B2B partnership and hybrid (validated v8.1 from Indusia POS × GO!Market deck — see §3.5.1 case study). `minimalist` for VC. Pure `info-dense` only when operator explicitly opts out of humanization (rare).**
 
-| Setting | `minimalist` (VC default) | `info-dense` (B2B partnership default) |
-|---------|---------------------------|----------------------------------------|
-| `headline_word_max` | 10 | 12 |
-| `subtext_word_max` | 25 | 40 (sub-text per zone, ≤2 zones per slide) |
-| `bullets_per_slide_max` | 3 | 6 (only inside structured-data zones, color-coded) |
-| `data_table_rows_max` | not allowed | 8 |
-| `math_waterfall_steps_max` | not allowed | 4 (Layer 1 → Layer 2 → Layer 3 → Total) |
-| `source_strip_lines_max` | 1 | 3 (multi-source footnote, italic 9–10pt) |
-| `visual_ratio_minimum` | 70% (visual = photo/chart/icon) | 70% (visual = photo/chart/icon **OR** structured-data per §2.5 in `visual-language.md`) |
-| `slide_zones_max` | 3 (hero, headline, footer) | 7 (top-strip, hero, left-panel, center-panel, right-panel, comparison-row, footnote-strip) |
-| Default `slide_1_3_style` | Photo (Editorial / Photorealistic) | Infographic-flat (cover with brand atmosphere; problem as radial; solution as 3-band flow) |
+| Setting | `minimalist` (VC default) | `humanized-info-dense` (B2B partnership DEFAULT v8.1+) | `info-dense` (legacy / opt-out only) |
+|---------|---------------------------|---------------------------------------------------------|--------------------------------------|
+| `headline_word_max` | 10 | 12 | 12 |
+| `subtext_word_max` | 25 | 40 | 40 |
+| `bullets_per_slide_max` | 3 | 6 | 6 |
+| `data_table_rows_max` | not allowed | 8 | 8 |
+| `math_waterfall_steps_max` | not allowed | 4 | 4 |
+| `source_strip_lines_max` | 1 | 3 | 3 |
+| `visual_ratio_minimum` | 70% | 70% (face counts as visual) | 70% (per §2.5 visual-language.md) |
+| `slide_zones_max` | 3 | 7 (face zone + 6 data zones) | 7 |
+| **`face_infographic_split`** | N/A (face-led) | **40% face + 60% infographic per body slide (HARD RULE)** | N/A (pure infographic) |
+| Default `slide_1_5_style` | Photo (Editorial / Photorealistic) | **Humanized Hybrid — Approach B (split 40/60) OR Approach C (character-center radial). See `image-prompt-templates.md` §2.5** | Infographic-flat (no humans) |
+| `cover_slide_style` | Hero photo + brand mark | **Pattern B face-on-body composite + heritage costume + national flag (where applicable)** | Brand atmosphere + face badge |
+| `cta_slide_style` | Hero photo + ask | **Founders + audience-archetype crowd witness + heritage costume** | Logo + ask |
+
+### 3.5.1. Why humanized-info-dense is the new B2B default (case study)
+
+Validated against Indusia POS × GO!Market pitch deck (May 2026). Pure `info-dense` Formula B (no humans) was REJECTED by operator at A/B selection. Humanized variants (with 40% face + 60% infographic) selected for ALL 5 body slides. Cover slide also rejected v1 (synthetic atmosphere only) in favor of v2B (founders in batik wardrobe + Indonesian flag + AI Constellation hub). CTA slide rejected handshake-only in favor of handshake + UMKM crowd witness in matching heritage costume.
+
+**Reason humans win**: Pitch decks need to trigger emotion, not just transfer data. Pure infographic communicates competence; humans communicate "this is for ME". B2B partnership pitches especially — the reader must SEE themselves (or their team / their customers) in the deck before they sign.
 
 ### How to choose density mode
 
-1. Audience reads the deck **before** the meeting? → `info-dense` (operator has time to absorb).
-2. Audience reads **during** a 5-minute live pitch? → `minimalist` (cognitive load matters).
-3. Deck is a **reference document** sent over email + walked through async? → `info-dense`.
-4. Deck must **stand alone** without speaker narration (cold to mall ops, EO, BizDev, channel partners)? → `info-dense`.
+1. Audience is VC reading 5-min live pitch? → `minimalist`.
+2. Audience is B2B operator / channel partner / ecosystem partner reading async? → `humanized-info-dense` (DEFAULT).
+3. Audience is internal technical review / appendix-only? → `info-dense` (legacy, no emotion needed).
+4. Audience reads deck before the meeting? → `humanized-info-dense` (operator has time to absorb both human + data).
 
-The banned vocab in §4 below applies to BOTH modes. Word-count limits relax in info-dense mode but the AI-slop word ban does NOT relax.
+The banned vocab in §4 below applies to ALL modes. Humanization layer applies to `humanized-info-dense` only — see `image-prompt-templates.md` §2.5 for the 40/60 rule, casting, iconography, and anti-caption-bleed pattern.
 
 ---
 
