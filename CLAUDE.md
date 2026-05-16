@@ -1,5 +1,18 @@
 # Pitch Deck Designer — Claude Project Instructions
 
+## 🧠 Vault Context Link
+
+Skill library — agnostic, dipakai cross-project (INDUSIA, IRN, dll).
+
+Pre-read kalau perlu konteks:
+- `30-Knowledge/image-gen-shared.md` — NB2 prompt engineering (re-used untuk slide visuals)
+- `30-Knowledge/content-strategy-shared.md` — narrative arc, hook design
+- `20-Projects/claude-plugin/README.md` — skill ecosystem overview
+- `10-Identity/visual-identity.md` — color, font, image style untuk anti-AI-slop
+- `10-Identity/voice-tone.md` — speaker notes voice
+
+JANGAN hardcode project-specific values (nama klien, ask amount, comparable). Pakai `{{placeholder}}` syntax di SKILL.md.
+
 ## Project Overview
 
 Claude Code plugin that converts a one-paragraph product brief into a presentation-ready pitch deck specification. Visual-first by mandate (≥70% visual / ≤30% text per slide). Dual-mode adaptive: detects whether the audience is a **B2B channel partner** (mall/EO/food-court operator who'll deploy our SaaS) or an **equity VC** (Series A/B fundraise) and reshapes the 10-slide narrative arc and emphasis accordingly. Generates per-slide image prompts (GeminiGen.AI / Nano Banana Pro), Seedance 2.0 video animation prompts (where motion adds value), optional Remotion configs (programmatic motion), and persuasive Indonesian/English speaker notes. Validation gate enforces the 100-point Pitch Deck Quality Score (Visual Ratio + Narrative Arc + Ask Clarity + Investor Psychology + Anti-AI-Slop) before output.
