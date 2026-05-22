@@ -4,6 +4,28 @@
 
 ---
 
+## 0. Mode Detection
+
+The validator runs in one of two scoring modes, selected automatically from `brief.json.output_type`. Mode determines which rubric applies; the 100-point cap is the same in both.
+
+| output_type | Rubric to apply | Rationale |
+|---|---|---|
+| `deck-vc` | Investor Deck Rubric (§1-§9 below) | Slide-format narrative pitch, single VC audience |
+| `deck-b2b` | Investor Deck Rubric (§1-§9 below) | Slide-format narrative pitch, B2B partner audience — uses same 5 categories with B2B-specific pass criteria already embedded |
+| `deck-hybrid` | Investor Deck Rubric (§1-§9 below) | Hybrid VC+B2B deck — apply both ask-clarity tracks where present |
+| `brochure-product` | Print-Mode Rubric (§11 below) | Modular page format, visual-first product collateral |
+| `portfolio-personal` | Print-Mode Rubric (§11 below) | Multi-page case-study portfolio |
+| `portfolio-agency` | Print-Mode Rubric (§11 below) | Multi-page agency capability deck (print) |
+| `catalog-product` | Print-Mode Rubric (§11 below) | Multi-page product grid + spec sheets |
+| `service-flyer` | Print-Mode Rubric (§11 below) | 1-2 page above-the-fold service offering |
+| `trifold-leaflet` | Print-Mode Rubric (§11 below) | 6-panel folded distribution piece |
+
+> Edge case: when a deck output_type also has `print_export: true` in `brief.json`, run BOTH rubrics and report both scores. The deck must pass the Investor Deck Rubric AND the Print Readiness criterion (§11.4) from the Print-Mode Rubric. Other Print-Mode criteria are advisory in that case, not hard-fail.
+
+See `references/research/design-fundamentals-2026.md` for the design-quality basis of both rubrics and `references/research/pdf-print-production-2026.md §10` for the print-readiness checklist informing §11.4.
+
+---
+
 ## 1. Score summary
 
 | Category | Weight | Pass minimum |
@@ -341,3 +363,157 @@ Validator output drives the next-step skill invocation:
 | Hallucinated traction | `/pitch-deck-brief` (gather missing source) |
 
 The `next_action_targets` field in the JSON tells the operator (or the agent) where to dispatch.
+
+---
+
+## 11. Print-Mode Rubric
+
+> Applies when `output_type` is one of: `brochure-product`, `portfolio-personal`, `portfolio-agency`, `catalog-product`, `service-flyer`, `trifold-leaflet`. Sum to 100. Combined ≥ 70 to publish. Hard-fails override the total. Mode selection logic is in §0 above.
+
+### 11.0 Print-Mode Score Summary
+
+| Category | Weight | Pass minimum |
+|---|---|---|
+| Visual Ratio | 25 | 18 (no page < 60%) |
+| Framework Fit | 15 | 10 |
+| CTA Clarity | 15 | 10 |
+| Print Readiness | 20 | 14 |
+| Anti-AI-Slop | 25 | 18 |
+| **TOTAL** | **100** | **70 to publish** |
+
+### 11.0a Print-Mode Hard-fails (auto-reject regardless of total)
+
+- Any page with visual ratio < 60%
+- Any banned vocabulary detected (per `references/global-config.md §4` + §4 print-mode additions: `next-gen`, `cutting-edge`, `best-in-class`, `state-of-the-art`, `industry-leading`, `mission-critical`, `paradigm-shift`, `synergy`)
+- Any unsourced claim or stat (e.g., "trusted by 10,000 customers" without source) — flag as hallucinated
+- 3+ of the 8 Anti-AI-Slop banlist patterns from `references/visual-language.md §15` detected
+- No CTA anywhere in the document (`service-flyer`, `trifold-leaflet`, `brochure-product`, `catalog-product` MUST have a CTA on cover/back)
+- File missing required print spec (CMYK mode, ≥3mm bleed, 300dpi raster, embedded fonts) — see §11.4
+- Generic gradient backdrop (purple-blue) used as primary visual on any page
+
+---
+
+### 11.1 Print Visual Ratio (25 points)
+
+**What it measures:** does each printed page achieve ≥ 70% visual cognitive weight?
+
+Print collateral is even more visual-first than decks because there's no speaker filling the verbal track — the page must stand alone.
+
+For each of N pages, score:
+- 0 pts if page visual ratio < 60% (HARD FAIL)
+- 1 pt if 60-69%
+- 2 pts if 70-84%
+- 2.5 pts if ≥ 85%
+
+Sum across pages, normalize to 25: `(sum / max_sum) × 25`. Use the area accounting method from `references/visual-language.md §2`. Treat structured-data blocks per `references/visual-language.md §2.5` as visual ONLY when the 6 mandatory criteria all hold.
+
+Hard-fail: any page < 60% → send back to gen.
+
+---
+
+### 11.2 Framework Fit (15 points)
+
+**What it measures:** does the document execute the 7-step content checklist of its chosen framework (per `references/frameworks/<output_type>.md`)?
+
+Checklist (~2.14 pts per step × 7 steps = 15):
+
+| # | Check | Pass criteria |
+|---|---|---|
+| 1 | Cover / hero page hits framework brief | Cover follows framework's mandatory-page spec (cover + hero claim + visual anchor) |
+| 2 | Mandatory pages all present | Per `references/global-config.md §15` mandatory_pages column for this output_type |
+| 3 | Page sequence matches framework's narrative arc | Order follows framework spec (e.g., brochure-product = cover → hero claim → feature modules → pricing → CTA → back-contact) |
+| 4 | Modular content blocks executed per framework | Brochure feature module = visual + headline + 1-2 line proof; portfolio case study = hero image + problem + solution + result number |
+| 5 | Framework-specific do-NOT patterns avoided | Each framework defines 3+ anti-patterns; none triggered |
+| 6 | Output type's audience tone honored | Matches `target_audience` declared in framework frontmatter |
+| 7 | Page count within framework default range | Per `references/global-config.md §15` default_page_count column |
+
+Hard-fail: if mandatory pages missing → back to narrative/copywriting stage.
+
+See `references/research/framework-structures-2026.md` for the per-output-type framework structures that inform each `frameworks/<output_type>.md` file.
+
+---
+
+### 11.3 CTA Clarity (15 points)
+
+**What it measures:** is the contact / pricing / action explicit on every page that needs it, especially on cover and back?
+
+Checklist (5 pts each × 3 items = 15):
+
+| # | Check | Pass criteria |
+|---|---|---|
+| 1 | Cover CTA present | Cover has a clear action prompt or value hook (e.g., "Scan QR for live demo" or "Pricing from Rp 150jt — see page 4") |
+| 2 | Back-cover or final-page CTA contractual | Specific contact channel (phone + WhatsApp + email + website all visible), with named decision deadline if applicable (e.g., "Promo berlaku s/d 30 Juni 2026") |
+| 3 | Per-page CTA on multi-page collateral | For brochure-product / catalog-product: every feature module or product card has a price tier or order channel visible. For portfolio: every case study has a "next steps" or "want similar?" line |
+
+Hard-fail: missing CTA anywhere in document → back to copywriting stage. Specifically for service-flyer + trifold-leaflet (1-2 page formats), CTA MUST appear above the fold on page 1.
+
+Reference pricing examples: INDUSIA prelaunch tier `Rp 150jt` (entry), `Rp 305jt` (standard), `Rp 450jt` (enterprise) — see `references/research/business-model-patterns-2026.md` for pricing-tier articulation patterns.
+
+---
+
+### 11.4 Print Readiness (20 points)
+
+**What it measures:** is the output technically ready for offset / digital press without further preflight work?
+
+Checklist (4 pts each × 5 items = 20):
+
+| # | Check | Pass criteria |
+|---|---|---|
+| 1 | CMYK color mode | All raster assets tagged CMYK; FOGRA51 ICC profile applied (or GRACoL/SWOP for US shops). RGB-only mode = -4 pts. See `references/visual-language.md §14.1` |
+| 2 | Bleed 3-5mm on all edges | Trim + 3mm Indonesia/EU OR trim + 5mm US, all 4 sides. Missing bleed = -4 pts. See `references/visual-language.md §14.2` |
+| 3 | 300dpi raster minimum | All photographic raster ≥ 300dpi at final size; line art ≥ 600dpi. Any image < 300dpi = -4 pts. See `references/visual-language.md §14.3` |
+| 4 | Fonts embedded (subset) | All fonts subset-embedded in PDF; PDF/X-4 compliance passes Acrobat Preflight or Ghostscript `-dPDFA` check. Un-embedded fonts = -4 pts. See `references/visual-language.md §14.4` |
+| 5 | No overprint / knockout errors | Black text uses overprint; spot colors handled per `references/research/pdf-print-production-2026.md §7`; no white-on-white knockout traps |
+
+Hard-fail: any item scoring 0/4 → back to gen with technical fix list.
+
+Validator runs `references/research/pdf-print-production-2026.md §10` print-ready checklist as automated preflight when feasible.
+
+---
+
+### 11.5 Print Anti-AI-Slop (25 points)
+
+**What it measures:** does the print collateral avoid the visual + verbal patterns that signal "AI-generated print" to a viewer?
+
+Sub-checks:
+
+#### 11.5a — Banned vocabulary (8 pts)
+
+Scan `copy.json` + all rendered text for banned vocabulary (per `references/global-config.md §4` + print-mode additions). Score: -1 pt per detection (max -8). HARD FAIL if any Tier-1 word (Unlock, Unleash, Empower, Supercharge, Maximize, Revolutionize, Transform, Disrupt) OR any print-mode addition (`next-gen`, `cutting-edge`, `best-in-class`, `state-of-the-art`, `industry-leading`, `mission-critical`, `paradigm-shift`, `synergy`) detected.
+
+#### 11.5b — 8-pattern visual banlist (12 pts)
+
+Scan all image prompts + rendered pages for the 8 banlist patterns from `references/visual-language.md §15`:
+
+| Banned pattern | Detection signal | -pts |
+|---|---|---|
+| Purple-blue gradient backdrop | Background color analysis or NB2 prompt scan | -1.5 |
+| Stock photo handshake | Image content classifier or prompt scan | -1.5 |
+| Hexagon tech icon | Vector / SVG scan for hex-grid pattern | -1.5 |
+| Light bulb innovation cliché | Image content classifier | -1.5 |
+| Faux 3D glassmorphism overuse | CSS / image scan; flag if >1 element per page | -1.5 |
+| Oversaturated palette | Color saturation analysis; flag if avg saturation > 80% | -1.5 |
+| Broken kerning / lazy tracking | Visual inspection of display type | -1.5 |
+| Lazy stock illustrations (Corporate Memphis) | Image content classifier | -1.5 |
+
+Max -12 pts. HARD FAIL if 3+ patterns detected on the same document.
+
+#### 11.5c — Hallucinated stats / unsourced claims (5 pts)
+
+Each unsourced claim on the document = -1 pt. HARD FAIL if any quantitative claim (revenue, customer count, market size, retention rate) lacks a source line or `internal estimate` tag.
+
+See `references/research/design-fundamentals-2026.md §7` for full 8-pattern explanation and correction guidance.
+
+---
+
+### 11.6 Print-Mode Combined Score Bands
+
+| Combined score | Band | Action |
+|---|---|---|
+| 90-100 | A — press-ready | Send to printer with confidence |
+| 80-89 | B — light polish | Address notes, then send to printer |
+| 70-79 | C — passes minimum | Send to printer OR iterate once more |
+| 60-69 | D — borderline | Send back to copywriting or gen for fixes |
+| < 60 | F — not ready | Full re-pass needed |
+
+Plus: any HARD FAIL → not published, regardless of combined score.

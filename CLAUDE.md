@@ -1,125 +1,169 @@
-# Pitch Deck Designer — Claude Project Instructions
+# AI Business Document Designer — Claude Project Instructions
 
 ## 🧠 Vault Context Link
 
-Skill library — agnostic, dipakai cross-project (INDUSIA, IRN, dll).
+Skill library — agnostic, dipakai cross-project (INDUSIA, IRN, Riau Palm Group, dll).
 
 Pre-read kalau perlu konteks:
-- `30-Knowledge/image-gen-shared.md` — NB2 prompt engineering (re-used untuk slide visuals)
-- `30-Knowledge/content-strategy-shared.md` — narrative arc, hook design
+- `30-Knowledge/image-gen-shared.md` — NB2 prompt engineering (re-used untuk slide + print visuals)
+- `30-Knowledge/content-strategy-shared.md` — narrative arc, hook design, framework selection
 - `20-Projects/claude-plugin/README.md` — skill ecosystem overview
 - `10-Identity/visual-identity.md` — color, font, image style untuk anti-AI-slop
-- `10-Identity/voice-tone.md` — speaker notes voice
+- `10-Identity/voice-tone.md` — speaker notes voice + print copy voice
 
-JANGAN hardcode project-specific values (nama klien, ask amount, comparable). Pakai `{{placeholder}}` syntax di SKILL.md.
+JANGAN hardcode project-specific values (nama klien, ask amount, comparable, pricing tier). Pakai `{{placeholder}}` syntax di SKILL.md.
 
 ## Project Overview
 
-Claude Code plugin that converts a one-paragraph product brief into a presentation-ready pitch deck specification. Visual-first by mandate (≥70% visual / ≤30% text per slide). Dual-mode adaptive: detects whether the audience is a **B2B channel partner** (mall/EO/food-court operator who'll deploy our SaaS) or an **equity VC** (Series A/B fundraise) and reshapes the 10-slide narrative arc and emphasis accordingly. Generates per-slide image prompts (GeminiGen.AI / Nano Banana Pro), Seedance 2.0 video animation prompts (where motion adds value), optional Remotion configs (programmatic motion), and persuasive Indonesian/English speaker notes. Validation gate enforces the 100-point Pitch Deck Quality Score (Visual Ratio + Narrative Arc + Ask Clarity + Investor Psychology + Anti-AI-Slop) before output.
+Claude Code plugin that converts a one-paragraph product brief into a presentation-ready business document specification across **9 output_types** spanning two families — **decks** (deck-vc, deck-b2b, deck-hybrid) and **print collateral** (brochure-product, portfolio-personal, portfolio-agency, catalog-product, service-flyer, trifold-leaflet). Visual-first by mandate (≥70% visual / ≤30% text per page). Routes through a **5-stage pipeline** (brief → narrative → copywriting → gen → validate) with **2 human approval gates** (after narrative, after copywriting) and a **dual-mode scoring rubric** (Investor Deck Rubric for decks; Print-Mode Rubric for collateral). Ships **7 theme presets** (industrial-brutalist, minimalist-editorial, premium-luxe, brutalist-mono, pastel-soft, indo-tropical, indusia-tech) and **3 PDF output modes** (html-css via Playwright, full-image via NB2 + img2pdf, spec-only for InDesign hand-off). Indonesian-first defaults; bilingual support.
 
-Four skills + one agent + 12 reference files. The 4-stage pipeline (brief → storyline → gen → validate) separates narrative design from visual production — so the storyline can be locked-in and approved before any image/video tokens are spent. Optimized for Indonesian audience as default but reusable for any product / market via `global-config.md`.
+Five skills + one agent + 25+ reference files. The 5-stage pipeline separates discovery from narrative from copy from visual production from validation — so each gate locks artifact integrity before the next stage spends tokens. Optimized for Indonesian audience as default but reusable for any product / market / format via `global-config.md`.
 
 ## Architecture
 
 | Path | Purpose |
 |------|---------|
-| `.claude-plugin/plugin.json` | Plugin metadata (name, version, author) |
+| `.claude-plugin/plugin.json` | Plugin metadata (name=ai-business-document-designer, v0.3.0) |
 | `hooks/hooks.json` | SessionStart hook definition |
 | `hooks/session-start.sh` | Session start script — announces available skills |
-| `skills/pitch-deck-brief/SKILL.md` | Stage 1 — discovery: gather product, audience, ask, traction, comparables, constraints. Detects mode (VC / B2B / hybrid). Outputs `brief.json`. |
-| `skills/pitch-deck-storyline/SKILL.md` | Stage 2 — narrative design: reads `brief.json`, designs hook + tension arc + payoff + ask + pattern-match + emotional core + 10-slide story spine. Outputs `storyline.md` + `storyline.json`. Human approval gate before stage 3. |
-| `skills/pitch-deck-gen/SKILL.md` | Stage 3 — visual production: reads `storyline.json`, produces per-slide image prompts (GeminiGen.AI), Seedance 2.0 video prompts, optional Remotion configs, speaker notes. Outputs `deck.md` + asset prompt files. |
-| `skills/pitch-deck-validate/SKILL.md` | Stage 4 — 100-point quality gate scoring 5 categories with hard-fail rules. |
-| `agents/pitch-deck-designer-agent.md` | Self-contained subagent for batch deck production (master + variants). |
-| `references/global-config.md` | Single source of truth — language, visual ratio thresholds, banned vocab, scoring weights. |
-| `references/research/investor-pitch-deck-best-practices-2026.md` | Cached NotebookLM deep-research synthesis (refresh manually every 6-12 months). |
-| `references/storyline-frameworks.md` | Narrative arc design — hook formulas, tension-build patterns, emotional core selection, pattern-match library, story spine templates. |
-| `references/deck-frameworks.md` | 10-slide arc + alternative frameworks (Sequoia, YC, Kawasaki, Founder Institute) with dual-mode emphasis tables. |
-| `references/investor-psychology.md` | First-90-second filters, 10 standard investor questions, pattern-matching biases, B2B vs VC psychology differences. |
-| `references/visual-language.md` | Cognitive load research, text-to-visual ratio rules (with §2.5 structured-data exception for info-dense mode), typography for projection, color, charts, anti-AI-slop visual rules. |
-| `references/image-prompt-templates.md` | GeminiGen.AI / Nano Banana Pro prompt formulas per slide type — density-mode-aware (Photo for minimalist / Infographic-flat for info-dense), brand-anchor cover (Slide 0), CTA composite (Slide N), composite reference patterns (face-as-badge vs face-on-body), Schema 2.0 with revision tracking |
-| `references/safety-filter-playbook.md` | MINOR_UPLOAD + IDENTITY_PRESERVATION mitigation — synthetic-atmosphere pattern, age-locking phrases, per-error fallback ladders. REQUIRED for any slide with face/logo `files[]` |
-| `references/seedance-prompt-templates.md` | Seedance 2.0 4-block prompt framework adapted for slide motion (demos, animated charts, transitions) |
-| `references/remotion-config-templates.md` | Remotion JSON templates for programmatic motion (animated counters, live data, parallax scrolling) |
-| `references/indonesian-context.md` | Bahasa pitch culture, IDR formatting, Indonesian VC landscape, compliance signals (BI, OJK, ISPO, ISO) |
-| `references/b2b-channel-partner-playbook.md` | B2B-mode specifics: ROI calculator, risk reversal, case study format, revenue share models, dual-stakeholder framing patterns (§9.5) |
-| `references/scoring-rubric.md` | 100-point validation gate — exact thresholds, traffic-light bands, hard-fail rules |
-| `scripts/compile-references.sh` | Builds compiled reference bundles for split-pipeline injection (future) |
+| `skills/ai-business-document-brief/SKILL.md` | Stage 1 — discovery: detect output_type, audience, ask/CTA, theme preset, output mode. Outputs `brief.json`. |
+| `skills/ai-business-document-narrative/SKILL.md` | Stage 2 — narrative arc (decks) or modular page layout (print collateral). HUMAN APPROVAL GATE. Outputs `narrative.md` + `narrative.json`. |
+| `skills/ai-business-document-copywriting/SKILL.md` | Stage 3 — per-page copy: headline ≤10 words, sub-text ≤25 words, CTA, pricing tier articulation, bilingual support. HUMAN APPROVAL GATE. Outputs `copy.json`. |
+| `skills/ai-business-document-gen/SKILL.md` | Stage 4 — visual production: image prompts (GeminiGen.AI / Nano Banana Pro), Seedance 2.0 video prompts, optional Remotion configs, HTML+CSS print stylesheets, output-type-aware aspect ratios. Outputs `deck.md` or `document.md` + asset prompt files + (optional) PDF. |
+| `skills/ai-business-document-validate/SKILL.md` | Stage 5 — 100-point quality gate, dual rubric (deck vs print). |
+| `agents/ai-business-document-agent.md` | Self-contained subagent for batch / variant production across formats. |
+| `references/global-config.md` | Single source of truth — language, visual ratio, banned vocab, scoring weights, §15 output_types, §16 themes, §17 PDF modes. |
+| `references/scoring-rubric.md` | 100-point validation gate — §0 mode detection, §1-§9 deck rubric, §11 print rubric. |
+| `references/frameworks/deck-vc.md` | VC pitch deck — 10-13 page narrative spine, Sequoia/YC/Kawasaki frameworks. |
+| `references/frameworks/deck-b2b.md` | B2B partnership deck — ROI-first arc, integration timeline, commercial terms. |
+| `references/frameworks/brochure-product.md` | Product brochure — cover + hero claim + feature modules + pricing + back-contact. |
+| `references/frameworks/portfolio-personal.md` | Personal portfolio — about + case study × 3-5 + skills + contact. |
+| `references/frameworks/portfolio-agency.md` | Agency portfolio — brand intro + service grid + case study × 3-6 + team. |
+| `references/frameworks/catalog-product.md` | Product catalog — category divider + product grid + spec table + order channel. |
+| `references/frameworks/service-flyer.md` | Service flyer — hero claim + 3-benefit + CTA above the fold. |
+| `references/frameworks/trifold-leaflet.md` | Trifold — 6-panel structure, mailer panel, DL envelope fold. |
+| `references/themes/indusia-tech.md` | Dark navy + cyan + gold + isometric 3D. |
+| `references/themes/minimalist-editorial.md` | Cream + ink + serif display + whitespace. |
+| `references/themes/industrial-brutalist.md` | Black + white + signal red + grid-violation. |
+| `references/themes/premium-luxe.md` | Gold + ivory + serif + generous leading. |
+| `references/themes/pastel-soft.md` | Soft pastels + rounded sans (Nunito). |
+| `references/themes/brutalist-mono.md` | Pure black/white + extreme grotesk weights. |
+| `references/themes/indo-tropical.md` | Warm earth + batik accents + display sans + body serif. |
+| `references/visual-language.md` | Cognitive load research, 70% ratio rules, §2.5 structured-data exception, typography, §14 print specs (CMYK/bleed/300dpi/fonts), §15 8-pattern anti-AI-slop banlist. |
+| `references/layout-grammar.md` | Page composition rules for print collateral — module sizing, fold-line safe zones, gutter math. |
+| `references/copywriting-patterns.md` | Headline patterns, CTA patterns, pricing tier articulation, bilingual handling. |
+| `references/html-css-print-templates.md` | Playwright `page.pdf()` CSS templates, A4/A3 trim + bleed boilerplate, `-webkit-print-color-adjust` rules. |
+| `references/image-prompt-templates.md` | GeminiGen.AI / Nano Banana Pro prompt formulas, density-mode-aware, brand-anchor cover, composite reference patterns. |
+| `references/seedance-prompt-templates.md` | Seedance 2.0 4-block prompts for motion (demos, animated charts, transitions). |
+| `references/remotion-config-templates.md` | Remotion JSON for programmatic motion. |
+| `references/indonesian-context.md` | Bahasa, IDR formatting, VC landscape, BI/OJK/ISPO/ISO compliance signals. |
+| `references/investor-psychology.md` | First-90-sec filters, 10 standard investor questions, pattern-matching biases. |
+| `references/b2b-channel-partner-playbook.md` | ROI calculator, risk reversal, dual-stakeholder framing. |
+| `references/business-model-patterns.md` | Pricing tier articulation, revenue share, freemium/SaaS/per-seat patterns. |
+| `references/storyline-frameworks.md` | Hook formulas, tension-build, emotional core, pattern-match library. |
+| `references/safety-filter-playbook.md` | MINOR_UPLOAD + IDENTITY_PRESERVATION mitigation. |
+| `references/research/*` | Cached NotebookLM research (refresh quarterly to annually). |
+| `scripts/lint-frameworks.sh` | Lint frameworks/*.md against frontmatter contract. |
+| `scripts/lint-themes.sh` | Lint themes/*.md against theme schema. |
+| `scripts/lint-references.sh` | Lint references for broken cross-links + missing §refs. |
+| `scripts/lint-skills.sh` | Lint SKILL.md files for required sections. |
+| `scripts/compile-references.sh` | Builds compiled per-skill reference bundles for split-pipeline injection. |
 | `README.md` | Repo README |
 | `LICENSE` | MIT license |
 
-## The 10-slide narrative arc (dual-mode)
+## 9 output_types (per `global-config.md §15`)
 
-Adapted from Sequoia template + DocSend reading-time data. Audience mode is detected during discovery and changes the emphasis on each slide — never the structure itself, so the operator can swap audiences without rewriting the deck.
+| output_type | mode | framework file | default pages | typical use |
+|---|---|---|---|---|
+| `deck-vc` | Deck | `frameworks/deck-vc.md` | 10-13 | Series A/B fundraise, single VC audience |
+| `deck-b2b` | Deck | `frameworks/deck-b2b.md` | 10-13 | Channel partner pitch (mall/EO/operator) |
+| `deck-hybrid` | Deck | `frameworks/deck-vc.md` + `deck-b2b.md` | 10-13 | Mixed VC + B2B audience, dual track |
+| `brochure-product` | Print | `frameworks/brochure-product.md` | 5-10 | Product spec + pricing handout |
+| `portfolio-personal` | Print | `frameworks/portfolio-personal.md` | 8-20 | Designer/dev/consultant portfolio |
+| `portfolio-agency` | Print | `frameworks/portfolio-agency.md` | 8-20 | Agency capability deck (print) |
+| `catalog-product` | Print | `frameworks/catalog-product.md` | 8-24 | Multi-SKU catalog, distributor pack |
+| `service-flyer` | Print | `frameworks/service-flyer.md` | 1-2 | Above-the-fold service pitch |
+| `trifold-leaflet` | Print | `frameworks/trifold-leaflet.md` | 6 panels | DL-envelope distributable |
 
-| # | Slide role | VC-mode emphasis | B2B-mode emphasis |
-|---|-----------|------------------|-------------------|
-| 1 | Title / Vision | Company + one-line "what" + ask amount | Product + venue logo lock-up + one-line ROI promise |
-| 2 | Problem | Visceral market pain, sized | Operator's daily pain (queues, shrinkage, no insight) — visual not stat |
-| 3 | Solution | Product demo screenshot + the "secret" | Before/after operator dashboard + on-the-ground photo |
-| 4 | Market / Traction | TAM / SAM / SOM bottom-up + traction proof | Comparable venues already running + GMV uplift % |
-| 5 | Product | One headline feature animated | Three pillars (POS + Wristband + Control Room) icon grid |
-| 6 | Business Model / ROI | Unit economics, LTV/CAC | Operator P&L: cost vs uplift in IDR, payback months |
-| 7 | Competition | Honest 2x2 with axes that flatter us truthfully | Yukk feature gap matrix — what they don't have |
-| 8 | Team | Founder–market fit + key hires | Same + on-the-ground deployment team + support SLA |
-| 9 | Roadmap / AI agents | What ships next 12 months | What value lands at venue this quarter (analytics + ads + social agent) |
-| 10 | Ask / CTA | Round size, use of funds, milestones | Pilot terms, revenue share / fee, integration timeline |
+## 7 theme presets (per `global-config.md §16`)
+
+| theme | aesthetic | typical use |
+|---|---|---|
+| `indusia-tech` | Dark navy + cyan + gold + isometric 3D | deck-b2b (tech), deck-vc, brochure-product (tech), portfolio-agency |
+| `minimalist-editorial` | Cream + ink + serif + whitespace | portfolio-personal, brochure-product (premium), deck-hybrid |
+| `industrial-brutalist` | Black + white + signal red + grid-violation | portfolio-agency, deck-b2b (heavy industry), brochure-product (industrial) |
+| `premium-luxe` | Gold + ivory + serif + leading | brochure-product (luxury), portfolio-personal (high-fee), catalog-product (premium) |
+| `pastel-soft` | Pastels + rounded sans | service-flyer (B2C), brochure-product (F&B, kids), catalog-product (consumer) |
+| `brutalist-mono` | Pure black/white + extreme grotesk | portfolio-personal (designer), portfolio-agency (creative studio) |
+| `indo-tropical` | Warm earth + batik + display sans + body serif | brochure-product (tourism, F&B ID), portfolio-agency (ID-rooted), catalog-product (kerajinan) |
+
+## 3 PDF output modes (per `global-config.md §17`)
+
+| mode | when to use | tradeoffs |
+|---|---|---|
+| `html-css` | Multi-page text-heavy collateral, version-control source, re-edit later (decks default) | Requires Node.js + Playwright. CMYK fidelity limited — for true CMYK use `full-image` or post-process via Ghostscript. |
+| `full-image` | Photo-heavy formats (brochure-product, portfolio-personal, catalog-product); when ≥85% visual ratio mandatory (print collateral default) | Flat image per page — no live text, no a11y, file size 20-80MB for 8 pages. |
+| `spec-only` | Operator wants final assembly control; print shop requires native InDesign source for offset print | No PDF artifact. Operator executes spec by hand or via Canva/Figma API. |
 
 ## Hard rules (NON-NEGOTIABLE)
 
-These rules apply to every deck generated. Violation requires immediate correction before output.
+These rules apply to every document generated. Violation requires immediate correction before output.
 
-1. **Visual ratio ≥ 70% per slide.** Cognitive weight of visuals (image, chart, icon, video frame) must dominate text on every slide. Hard-fail under 60%.
-2. **Headline ≤ 10 words.** No exceptions. If you can't say it in 10 words you don't know what you're saying.
-3. **Sub-text ≤ 25 words per slide.** Numbers and proper nouns only — no adjectives, no marketing speak.
-4. **No banned vocabulary.** Permanently banned: Unlock, Unleash, Empower, Supercharge, Maximize, Revolutionize, Transform, Disrupt, Synergize, Leverage (as verb), Cutting-edge, World-class, Best-in-class, Game-changing. Replace with concrete numbers or remove.
-5. **No generic AI-slop visuals.** No purple-blue gradient backgrounds, no stock photo handshakes, no generic "person looking at chart on holographic screen", no light bulb = innovation, no gear = technology, no globe = international, no abstract neural network blobs. Specify SPECIFIC visual subjects.
-6. **Every claim has a source or "internal estimate" tag.** Hallucinated traction is automatic reject. Fabricated TAM is automatic reject. If you don't know, say "internal estimate" or "founder hypothesis".
-7. **Ask is specific.** VC mode: dollar/IDR amount + use of funds breakdown + 18-month milestones. B2B mode: pilot scope + commercial terms + integration timeline + decision deadline.
-8. **The 10 standard investor questions are pre-empted by slide 8.** Per `investor-psychology.md`, every standard question maps to a specific slide. If a question isn't pre-empted, that slide failed its job.
-9. **Story spine intact.** Hook by slide 2, tension peak around slide 6, payoff by slide 8, ask by slide 10. No deck ships without a working narrative arc.
-10. **Pattern match to one known winner.** Every deck must explicitly state "we are [known successful company] for [our market]" within the first 3 slides. Without pattern match, investor's brain has no shelf to file the company on.
-11. **Indonesian context honored.** When deck is for Indonesian audience: IDR currency primary (USD parenthetical OK), Bahasa headline + English subtitle if bilingual, named Indonesian companies as comparables, BI/OJK/ISPO compliance signals where relevant.
-12. **Speaker notes 30–45 seconds per slide.** Stage time matters: 80–150 words per slide of speaker notes. Total deck = 5–7 minute talk track. Anything longer means the slides are doing the speaker's job.
+1. **Visual ratio ≥ 70% per page.** Cognitive weight of visuals must dominate text on every page. Hard-fail under 60%.
+2. **Headline ≤ 10 words.** No exceptions.
+3. **Sub-text ≤ 25 words per page.** Numbers and proper nouns only — no adjectives, no marketing speak.
+4. **No banned vocabulary.** Permanently banned: Unlock, Unleash, Empower, Supercharge, Maximize, Revolutionize, Transform, Disrupt, Synergize, Leverage (as verb), Cutting-edge, World-class, Best-in-class, Game-changing. Print-mode additions: next-gen, state-of-the-art, industry-leading, mission-critical, paradigm-shift, synergy.
+5. **No generic AI-slop visuals.** No purple-blue gradient backdrops, no stock-photo handshakes, no hexagon tech icons, no light-bulb = innovation, no gear = technology, no globe = international, no abstract neural blobs, no Corporate Memphis illustrations, no faux 3D glassmorphism overuse, no oversaturated palettes (avg saturation >80%).
+6. **Every claim has a source or `internal estimate` tag.** Hallucinated traction / fabricated TAM / made-up customer counts = automatic reject.
+7. **Ask / CTA is specific.** Decks: amount + use of funds + 18-month milestones (VC) OR pilot scope + commercial terms + integration timeline + decision deadline (B2B). Print: contact channel (phone + WhatsApp + email + website all visible) + named decision deadline if applicable + pricing tier visible.
+8. **The 10 standard investor questions are pre-empted by slide 8** (decks only). Per `investor-psychology.md`.
+9. **Story spine intact** (decks only). Hook by slide 2, tension peak around slide 6, payoff by slide 8, ask by slide 10.
+10. **Pattern match to one known winner** (decks only). "We are [known successful company] for [our market]" within first 3 slides.
+11. **Indonesian context honored.** IDR primary (USD parenthetical OK), Bahasa headline + English subtitle if bilingual, named Indonesian comparables, BI/OJK/ISPO/ISO compliance signals where relevant.
+12. **Speaker notes 30-45 seconds per slide** (decks only). 80-150 words per slide. Total deck = 5-7 minute talk track.
+13. **Print outputs MUST be press-ready.** CMYK color mode (FOGRA51 ICC for ID/EU, GRACoL/SWOP for US), 3-5mm bleed on all 4 edges, 300dpi raster minimum (600dpi line art), all fonts subset-embedded (PDF/X-4 compliance). Applies to any output_type in the print family — see `visual-language.md §14`.
+14. **Visual ratio adapts per density-mode.** Minimalist = photo-led ≥70%. Info-dense = structured-data blocks count as visual ONLY when all 6 criteria from `visual-language.md §2.5` hold. Wrong density-mode for the output_type fails Framework Fit.
+15. **Pricing tier articulation mandatory** for product/service catalogs and brochures with pricing. Three tiers minimum (entry / standard / enterprise) with IDR amount + 2-3 line tier-differentiator each. Per `business-model-patterns.md`.
 
-## 4-stage pipeline (each stage = its own skill)
+## 5-stage pipeline (each stage = its own skill)
 
 ```
-STAGE 1 — pitch-deck-brief (DISCOVERY)
-  Inputs: one-paragraph brief, target audience description, ask amount, target language
-  Asks: clarifying Qs to fill traction, comparables, constraints, timeline
-  Detects: mode = VC | B2B | hybrid
+STAGE 1 — ai-business-document-brief (DISCOVERY)
+  Inputs: one-paragraph brief, output_type signal, audience, ask/CTA, target language, theme preference
+  Detects: output_type (deck-vc / deck-b2b / deck-hybrid / brochure-product / portfolio-* / catalog / flyer / trifold), audience mode, density-mode, language
+  Selects: theme preset (7 options) + PDF output mode (html-css / full-image / spec-only)
   Outputs: brief.json (saved to working dir or /tmp/)
 
-STAGE 2 — pitch-deck-storyline (NARRATIVE DESIGN) — HUMAN APPROVAL GATE
+STAGE 2 — ai-business-document-narrative (NARRATIVE / LAYOUT) — HUMAN APPROVAL GATE #1
   Reads: brief.json
-  Designs: hook (one of 6 hook formulas) → tension build (problem → urgency → cost of inaction) → payoff (solution + proof) → ask (specific, dated)
-  Selects: emotional core (Fear/Loss vs Greed/Gain vs Identity vs Curiosity vs Tribe)
-  Selects: pattern match ("we are [known winner] for [our niche]") — picks from `references/investor-psychology.md` library
-  Maps: 10-slide story spine with audience-mode emphasis (per `references/deck-frameworks.md`)
-  Outputs: storyline.md (human-readable) + storyline.json (machine-readable)
-  PAUSE: operator reviews storyline, approves or refines. No tokens spent on visuals until approval.
+  Decks: designs hook + tension + payoff + ask + pattern-match + emotional core + 10-slide story spine
+  Print: designs modular page layout — cover + N content modules + back, fold-line safe zones, page sequence
+  Outputs: narrative.md (human-readable) + narrative.json (machine-readable)
+  PAUSE: operator reviews narrative / layout. No tokens spent on copy or visuals until approval.
 
-STAGE 3 — pitch-deck-gen (VISUAL PRODUCTION)
-  Reads: storyline.json (and brief.json for context)
-  Per slide:
+STAGE 3 — ai-business-document-copywriting (COPY) — HUMAN APPROVAL GATE #2
+  Reads: brief.json + narrative.json
+  Per page: headline ≤10 words + sub-text ≤25 words + CTA + pricing tier articulation + bilingual handling
+  Outputs: copy.json
+  PAUSE: operator reviews copy. No image/video tokens spent until approval.
+
+STAGE 4 — ai-business-document-gen (VISUAL PRODUCTION)
+  Reads: narrative.json + copy.json
+  Per page:
     1. Visual concept (one-sentence what-it-shows)
-    2. On-slide text (≤10 word headline + ≤25 word sub-text)
-    3. Image prompt — full GeminiGen.AI nano-banana-pro format (40-100 words)
-    4. Optional video prompt — Seedance 2.0 4-block when motion adds clarity
-    5. Optional Remotion JSON config when programmatic motion needed
-    6. Speaker note (80-150 words in storyline.json's chosen language)
-    7. Investor pre-empt (which of 10 standard investor questions this slide answers)
-  Outputs: deck.md + image-prompts.json + video-prompts.json + remotion.config.json (optional) + speaker-notes.md
+    2. Image prompt (40-100 words, GeminiGen.AI nano-banana-pro)
+    3. Optional video prompt (Seedance 2.0 4-block when motion adds clarity)
+    4. Optional Remotion JSON (programmatic motion)
+    5. HTML+CSS print stylesheet (if output_mode=html-css)
+    6. Speaker note (decks only, 80-150 words)
+    7. Framework pre-empt (decks: investor Q-map; print: framework slot mapping)
+  Outputs: deck.md / document.md + image-prompts.json + video-prompts.json + remotion.config.json + (optional) PDF
 
-STAGE 4 — pitch-deck-validate (QUALITY GATE)
-  Reads: deck.md (and storyline.json for narrative-arc check)
-  Scores: 5 categories totaling 100 points
-    - Visual Ratio (25): each slide ≥70%, hard-fail any < 60%
-    - Narrative Arc (20): hook in 1-2, payoff by 8, ask in 10
-    - Ask Clarity (15): specific number, use of funds, milestone
-    - Investor Psychology (20): first-90-sec filter, 10-Q pre-empts, pattern-match
-    - Anti-AI-Slop (20): no banned vocab, no AI-cliché visuals, no hallucinated traction
+STAGE 5 — ai-business-document-validate (QUALITY GATE)
+  Reads: deck.md / document.md + narrative.json
+  Mode detection: deck output_types → Investor Deck Rubric (§1-§9); print output_types → Print-Mode Rubric (§11)
+  Deck rubric: Visual Ratio (25) + Narrative Arc (20) + Ask Clarity (15) + Investor Psychology (20) + Anti-AI-Slop (20) = 100
+  Print rubric: Visual Ratio (25) + Framework Fit (15) + CTA Clarity (15) + Print Readiness (20) + Anti-AI-Slop (25) = 100
   Output: validation-report.json (passed/failed per category, fixes per failure)
   Combined ≥70 = publish. Hard-fail = back to relevant upstream skill.
 ```
@@ -128,56 +172,61 @@ STAGE 4 — pitch-deck-validate (QUALITY GATE)
 
 | Stage | Skill | Read first |
 |-------|-------|-----------|
-| 1 | `/pitch-deck-brief` | `global-config.md` (always) + `b2b-channel-partner-playbook.md` (if B2B detected) + `indonesian-context.md` (if Indonesian) |
-| 2 | `/pitch-deck-storyline` | `global-config.md` + `storyline-frameworks.md` + `investor-psychology.md` + `research/investor-pitch-deck-best-practices-2026.md` + `deck-frameworks.md` |
-| 3 | `/pitch-deck-gen` | `global-config.md` + `visual-language.md` + `image-prompt-templates.md` + `safety-filter-playbook.md` (REQUIRED for any slide with face/logo `files[]`) + `b2b-channel-partner-playbook.md` (if B2B / partnership) + `seedance-prompt-templates.md` (if motion=true) + `remotion-config-templates.md` (if programmatic_motion=true) |
-| 4 | `/pitch-deck-validate` | `global-config.md` + `scoring-rubric.md` + `visual-language.md` (anti-slop) + `investor-psychology.md` (pre-empt check) |
+| 1 | `/ai-business-document-brief` | `global-config.md` (always) + `frameworks/<output_type>.md` (for the detected type) + `indonesian-context.md` (if Indonesian) |
+| 2 | `/ai-business-document-narrative` | `global-config.md` + `storyline-frameworks.md` (decks) + `investor-psychology.md` (decks) + `layout-grammar.md` (print) + `frameworks/<output_type>.md` |
+| 3 | `/ai-business-document-copywriting` | `global-config.md` + `copywriting-patterns.md` + `business-model-patterns.md` (catalog/flyer/brochure with pricing) + `indonesian-context.md` |
+| 4 | `/ai-business-document-gen` | `global-config.md` + `visual-language.md` + `image-prompt-templates.md` + `safety-filter-playbook.md` (any face/logo files[]) + `themes/<theme>.md` + `html-css-print-templates.md` (print modes) + `seedance-prompt-templates.md` (motion=true) + `remotion-config-templates.md` (programmatic_motion=true) |
+| 5 | `/ai-business-document-validate` | `global-config.md` + `scoring-rubric.md` + `visual-language.md` (anti-slop + §14 print specs) + `investor-psychology.md` (decks pre-empt check) |
 
 Each row adds (+) to base. Multiple tasks in one step = read all listed files.
 
-## Common failure modes (RED phase findings)
-
-These are the failures observed when a generic LLM is asked to "make a pitch deck" without this skill. Each is countered by a hard rule above.
+## Common failure modes
 
 | Failure mode | Counter rule |
 |--------------|--------------|
-| Wall of bullet text per slide | Rule 1, 2, 3 (visual ratio + word limits) |
-| Generic AI-slop visuals (purple gradients, stock handshakes) | Rule 5 (specific subjects mandated) |
-| Hallucinated traction numbers | Rule 6 (source-or-hypothesis tagging) |
+| Wall of bullet text per page | Rule 1, 2, 3 (visual ratio + word limits) |
+| Generic AI-slop visuals (purple gradients, stock handshakes, Corporate Memphis) | Rule 5 (specific subjects mandated) |
+| Hallucinated traction / customer counts | Rule 6 (source-or-hypothesis tagging) |
 | Vague ask ("we want to grow") | Rule 7 (specificity mandated) |
-| Speaker notes that just restate the slide | Speaker notes section in `visual-language.md` |
-| English-defaulted deck for Indonesian audience | Rule 11 + `indonesian-context.md` |
-| Sequoia template applied verbatim to B2B sale | Mode detection in Stage 1 (`pitch-deck-brief`) + dual-mode emphasis tables in `deck-frameworks.md` |
-| 30-slide deck because every idea got its own slide | 10-slide hard cap (extend only via appendix) |
-| Forgot the ask slide entirely | Rule 7 + slide 10 mandate |
-| Closing on "Thank You" | Final-frame rule in `visual-language.md` (last frame = the ask, not a thank-you) |
-| **Cover slide rendered as generic stock-photo** (most common B2B partnership failure) | **Density-mode-aware Slide 0 brand-anchor template** in `image-prompt-templates.md` §3 |
-| **Info-dense partnership deck rejected as "too text-heavy"** | **§2.5 structured-data visual exception** in `visual-language.md` |
-| **Founder face composite triggers MINOR_UPLOAD safety filter** | **Synthetic-atmosphere pattern + age-locking** in `safety-filter-playbook.md` |
-| **Brand colors drift between slides** | **`brand_palette` REQUIRED + verbatim hex injection** in `global-config.md` §3.6 |
-| **Bad style-anchor poisons all subsequent slides via `ref_history`** | **Step 4.5 quality gate** in `pitch-deck-gen` SKILL.md |
-| **Partnership deck shows only one stakeholder** | **Dual-stakeholder framing patterns §9.5** in `b2b-channel-partner-playbook.md` |
+| Speaker notes that just restate the slide | `visual-language.md` speaker-notes section |
+| English-defaulted document for Indonesian audience | Rule 11 + `indonesian-context.md` |
+| Sequoia template applied verbatim to B2B sale | Output_type detection in Stage 1 + `frameworks/deck-b2b.md` |
+| 30-slide deck because every idea got its own slide | Per-output_type default_page_count cap |
+| Forgot the ask / CTA slide entirely | Rule 7 |
+| Closing on "Thank You" | Final-frame rule in `visual-language.md` |
+| Cover page rendered as generic stock-photo | Density-mode-aware Slide 0 brand-anchor template in `image-prompt-templates.md` §3 |
+| Founder face composite triggers MINOR_UPLOAD safety filter | Synthetic-atmosphere + age-locking in `safety-filter-playbook.md` |
+| Brand colors drift between pages | `brand_palette` REQUIRED + verbatim hex injection per `global-config.md §3.6` |
+| **CMYK not set — print shop rejects PDF as RGB** | Rule 13 + `visual-language.md §14.1` + Print Readiness check |
+| **Bleed missing — print shop charges re-trim fee** | Rule 13 + `visual-language.md §14.2` |
+| **Raster below 300dpi — visible pixelation on press** | Rule 13 + `visual-language.md §14.3` |
+| **Fonts not embedded — substitution on viewer machine** | Rule 13 + `visual-language.md §14.4` |
+| **Fold-line clips body content** (trifold) | `layout-grammar.md` fold-safe-zone rules + `frameworks/trifold-leaflet.md` |
+| **Pricing tier vague or absent** (catalog/flyer/brochure) | Rule 15 + `business-model-patterns.md` |
+| **Wrong density-mode for output_type** (e.g., minimalist mode used for catalog) | Rule 14 + `visual-language.md §2.5` |
 
-## Key Pipeline Behaviors
+## Key pipeline behaviors
 
-- **Interactive mode** (default): hard pause point at the end of Stage 2 (`pitch-deck-storyline`) — operator reviews `storyline.md` + audience-mode detection + framework choice + pattern-match selection before any image/video prompts are spent in Stage 3.
-- **Batch / variant mode** (via `agents/pitch-deck-designer-agent.md`): one master deck + N audience-specific variants run in a single Task invocation. Storyline approval is consolidated across all variants.
-- **Pipeline mode** (CLI flags `--brief-file --output-dir --storyline-pre-approved` etc.): fully automated, zero pauses, writes structured JSON to output directory. Validation failures hard-stop and exit non-zero.
-- **Validate-only mode** (`/pitch-deck-validate`): scores an existing deck.md against the 100-point gate without regenerating.
-- **Refresh research mode** (`--refresh-research`): re-runs nlm-skill, overwrites `references/research/investor-pitch-deck-best-practices-2026.md`.
+- **Interactive mode** (default): hard pauses at end of Stage 2 AND Stage 3. Operator reviews narrative / layout, then copy, before any visual tokens are spent.
+- **Batch / variant mode** (via `agents/ai-business-document-agent.md`): one master document + N audience/theme variants in a single Task invocation. Approval gates consolidated across variants.
+- **Pipeline mode** (CLI flags `--brief-file --output-dir --narrative-pre-approved --copy-pre-approved`): fully automated, zero pauses, structured JSON to output directory. Validation failures hard-stop and exit non-zero.
+- **Validate-only mode** (`/ai-business-document-validate`): scores an existing deck.md / document.md against the appropriate rubric without regenerating.
+- **Refresh research mode** (`--refresh-research`): re-runs nlm-skill, overwrites cached research files in `references/research/`.
 
 ## Integration with other plugins in the suite
 
-| Sibling plugin | How pitch-deck-designer relates |
+| Sibling plugin | How ai-business-document-designer relates |
 |----------------|-------------------------------|
-| `ai-image-carousel-prompt-gen` | Image prompt format and `references/global-config.md` philosophy mirrored. A deck slide with image prompt can be sent to carousel-gen for batch render. |
+| `ai-image-carousel-prompt-gen` | Image prompt format + `global-config.md` philosophy mirrored. A page with image prompt can be sent to carousel-gen for batch render. |
 | `ai-video-promo-engine` | Video prompts use the same Seedance 2.0 / VEO 3.1 grammar. A deck demo loop can be promoted into a full video via video-gen. |
-| `article-content-writer` | When a deck needs a long-form companion (one-pager, FAQ, deep-dive memo), hand off to article-gen with the deck's narrative arc as input. |
-| `linkedin-post-writer` | Title slide image + speaker note for slide 10 can become a LinkedIn announcement post via linkedin-gen. |
+| `article-content-writer` | When a document needs a long-form companion (one-pager, FAQ, deep-dive memo), hand off to article-gen with the narrative arc as input. |
+| `linkedin-post-writer` | Cover image + final-page CTA can become a LinkedIn announcement post via linkedin-gen. |
 
 ## Refresh / maintenance
 
-- `references/research/investor-pitch-deck-best-practices-2026.md` is cached NotebookLM output. Refresh annually or when deck win rate drops noticeably.
-- `references/indonesian-context.md` (VC landscape, compliance) — refresh quarterly; Indonesian PG/SaaS rules shift fast.
-- Banned vocabulary list (`global-config.md` §4) — append when new AI-slop terms emerge.
+- `references/research/*` are cached NotebookLM outputs. Refresh annually or when document win rate drops noticeably (quarterly for `indonesian-print-culture-2026.md` since printer pricing + paper stock availability shift fast).
+- `references/indonesian-context.md` (VC landscape, compliance) — refresh quarterly.
+- Banned vocabulary list (`global-config.md §4`) — append when new AI-slop terms emerge.
 - Scoring rubric thresholds (`scoring-rubric.md`) — adjust only when validation results consistently misalign with operator outcomes.
+- Theme presets (`themes/*.md`) — extend the theme registry in `global-config.md §16` first, then create the preset file. Lint via `scripts/lint-themes.sh`.
+- Frameworks (`frameworks/*.md`) — extend `global-config.md §15` first, then create the framework file. Lint via `scripts/lint-frameworks.sh`.

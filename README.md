@@ -1,149 +1,144 @@
-# Pitch Deck Designer — Claude Code Plugin
+# AI Business Document Designer — Claude Code Plugin
 
-Visual-first investor pitch deck designer that turns a one-paragraph product brief into a presentation-ready deck spec — 10 slides, ≥70% visual / ≤30% text per slide, with image prompts (Nano Banana / GeminiGen.AI), Seedance 2.0 video animation prompts, optional Remotion motion configs, and persuasive Indonesian/English speaker notes. Dual-mode adaptive: detects whether the audience is a **B2B channel partner** (mall operator, EO, food court — adopt our SaaS) or an **equity VC** (Series A/B fundraise) and reshapes the narrative arc accordingly. Validation gate enforces the 100-point Pitch Deck Quality Score before output.
+Visual-first AI designer for business documents across 9 output_types — pitch decks (VC, B2B partnership, hybrid), brochures, portfolios (personal + agency), product catalogs, service flyers, and trifold leaflets. Turns a one-paragraph product brief into a presentation-ready or press-ready document specification: ≥70% visual / ≤30% text per page, with image prompts (Nano Banana Pro / GeminiGen.AI), Seedance 2.0 motion prompts, optional Remotion configs, HTML+CSS print stylesheets, and persuasive Indonesian/English copy. Routes through a 5-stage pipeline with 2 human approval gates and a dual-rubric validator (Investor Deck Rubric for decks; Print-Mode Rubric for collateral).
 
 ## Why this plugin exists
 
-The default behavior of LLMs when asked for a "pitch deck" is to dump 10 paragraphs of bullet text into 10 slides — the exact failure mode that DocSend research identified as why investors disengage in the first 90 seconds. This plugin enforces the opposite: a deck where **the visuals carry the story** and the speaker fills in the words. Each slide is shipped as a structured spec (visual concept + on-slide text ≤30% of cognitive weight + image prompt + speaker notes + design specs) so the operator can render in Canva / Figma / Pitch.com / Gamma without re-inventing the visual language per slide.
+The default behavior of LLMs when asked for a "pitch deck" is to dump 10 paragraphs of bullet text — the exact failure mode DocSend research identified as why investors disengage in the first 90 seconds. When asked for a "brochure" or "portfolio", LLMs produce generic stock-photo handshakes, purple gradient backdrops, light-bulb-equals-innovation clichés, and crucially miss the print-readiness contract (CMYK, bleed, 300dpi, embedded fonts) that determines whether the file survives a real print shop. This plugin enforces the opposite: a document where **the visuals carry the story**, each page ships as a structured spec with framework-validated copy, and every print output is press-ready by default. Five stages, two approval gates, dual-mode scoring — the operator nails the narrative before any image token is spent and never ships a file the print shop will reject.
 
 ## Install
 
 ```bash
-# Via ai-content-suite marketplace (after pitch-deck-designer is published)
+# Via ai-content-suite marketplace
 claude plugins marketplace add alisadikinma/ai-content-suite
-claude plugins install pitch-deck-designer
+claude plugins install ai-business-document-designer
 
 # Or direct
-claude plugins install alisadikinma/pitch-deck-designer
+claude plugins install alisadikinma/ai-business-document-designer
 ```
 
-## Skills (4-stage pipeline)
+## Skills (5-stage pipeline)
 
 | # | Skill | Trigger | Stage | Description |
 |---|-------|---------|-------|-------------|
-| 1 | `pitch-deck-brief` | `/pitch-deck-brief` | Discovery | Gather raw info: product, audience, ask, traction, comparables, constraints. Detects mode (VC / B2B / hybrid). Outputs `brief.json`. |
-| 2 | `pitch-deck-storyline` | `/pitch-deck-storyline` | Narrative design | Reads `brief.json`. Designs the narrative arc — hook, tension build, payoff, ask, pattern-match, emotional core, 10-slide story spine with audience-mode emphasis. Outputs `storyline.md` + `storyline.json` (ready for `/pitch-deck-gen` to consume). HUMAN APPROVAL GATE before stage 3. |
-| 3 | `pitch-deck-gen` | `/pitch-deck-gen` | Visual production | Reads `storyline.json`. Produces per-slide visual spec — image prompts (GeminiGen.AI / Nano Banana Pro), Seedance 2.0 video prompts (where motion adds value), optional Remotion configs, speaker notes. Outputs `deck.md` + asset prompt files. |
-| 4 | `pitch-deck-validate` | `/pitch-deck-validate` | Quality gate | 100-point scoring across 5 categories: Visual Ratio (25), Narrative Arc (20), Ask Clarity (15), Investor Psychology (20), Anti-AI-Slop (20). Hard-fail under 70/100 or any slide visual ratio under 60%. |
+| 1 | `ai-business-document-brief` | `/ai-business-document-brief` | Discovery | Gather product, audience, ask/CTA, traction, theme preference. Detects output_type (one of 9), audience mode, density-mode, language, PDF output mode. Outputs `brief.json`. |
+| 2 | `ai-business-document-narrative` | `/ai-business-document-narrative` | Narrative / Layout | Decks: hook + tension + payoff + ask + pattern-match + emotional core + 10-slide story spine. Print: modular page layout with fold-line safe zones. **HUMAN APPROVAL GATE #1**. Outputs `narrative.md` + `narrative.json`. |
+| 3 | `ai-business-document-copywriting` | `/ai-business-document-copywriting` | Copy | Per-page headline ≤10 words, sub-text ≤25 words, CTA, pricing tier articulation, bilingual handling. **HUMAN APPROVAL GATE #2**. Outputs `copy.json`. |
+| 4 | `ai-business-document-gen` | `/ai-business-document-gen` | Visual production | Per-page image prompts (GeminiGen.AI / Nano Banana Pro), Seedance 2.0 motion prompts, optional Remotion configs, HTML+CSS print stylesheets, output-type-aware aspect ratios. Outputs `deck.md` / `document.md` + asset prompt files + (optional) PDF. |
+| 5 | `ai-business-document-validate` | `/ai-business-document-validate` | Quality gate | 100-point dual-rubric scoring: deck rubric (Visual Ratio + Narrative Arc + Ask Clarity + Investor Psychology + Anti-AI-Slop) OR print rubric (Visual Ratio + Framework Fit + CTA Clarity + Print Readiness + Anti-AI-Slop). Mode auto-selects from output_type. |
 
-**Why 4 stages, not 1:** the storyline is the soul of the deck. Folding it into visual generation (the way most AI tools do) produces decks that look polished but say nothing. Separating storyline as its own gated stage forces the operator to nail the narrative BEFORE spending tokens on image prompts. It also means the storyline can be refined / re-approved without regenerating the visuals, and vice-versa.
+**Why 5 stages, 2 gates:** narrative is the soul of the document and copy is the skeleton. Folding either into visual generation (the way most AI tools do) produces documents that look polished but say nothing or break at the press. Gate 1 (post-narrative) locks the story before any copy is written. Gate 2 (post-copy) locks the headline + CTA + pricing before any image/video tokens are spent. Each stage can be re-run atomically without invalidating downstream artifacts.
 
 **Run sequentially:**
 ```bash
-/pitch-deck-brief        # → brief.json
-/pitch-deck-storyline    # → storyline.md + storyline.json (HUMAN APPROVAL)
-/pitch-deck-gen          # → deck.md + image-prompts.json + video-prompts.json + speaker-notes.md
-/pitch-deck-validate     # → validation-report.json (gates publication)
+/ai-business-document-brief          # → brief.json
+/ai-business-document-narrative      # → narrative.md + narrative.json   (GATE #1)
+/ai-business-document-copywriting    # → copy.json                       (GATE #2)
+/ai-business-document-gen            # → deck.md / document.md + assets + (optional) PDF
+/ai-business-document-validate       # → validation-report.json          (gates publication)
 ```
-
-Or invoke any single stage atomically if upstream artifacts already exist (e.g. refine the storyline only, then re-run `/pitch-deck-gen`).
 
 ## Agent
 
 | Agent | Description |
 |-------|-------------|
-| `pitch-deck-designer-agent` | Self-contained subagent for batch deck production (e.g. one master deck + 3 audience variants) |
+| `ai-business-document-agent` | Self-contained subagent for batch document production — one master + N audience / theme / output_type variants in a single Task invocation. Approval gates consolidated. |
 
-## What gets generated per slide
+## What gets generated per page
 
-Every slide ships as a markdown record with eight components:
+Every page ships as a structured record with eight components:
 
-1. **Slide number + role** (Title / Hook / Problem / Solution / etc. — one of the 10-slide narrative beats)
-2. **Visual concept** — one-sentence brief of what the slide LOOKS like (this is what investors read in 3 seconds)
-3. **On-slide text** — at most 6–10 words for headline, ≤25 words for any sub-text. Numbers + nouns only, no adjectives, no marketing speak
-4. **Image prompt** — full GeminiGen.AI prompt (40-100 words) tuned to nano-banana-pro with aspect_ratio + style + reference images noted
-5. **Optional video prompt** — Seedance 2.0 4-block prompt when motion adds clarity (e.g. demo, animated chart, transition)
-6. **Optional Remotion JSON** — when programmatic motion is needed (live data, animated counter, parallax)
-7. **Speaker notes** — 80–150 words in user's selected language (default: Bahasa Indonesia), persuasive, conversational, mapped to 30–45 seconds of stage time
-8. **Investor pre-empt** — which of the 10 standard investor questions this slide pre-empts ("how do you make money?" → business model slide)
+1. **Page number + role** — e.g., decks: Title / Hook / Problem / Solution / Ask. Print: cover / hero claim / feature module / pricing / back-contact.
+2. **Visual concept** — one-sentence brief of what the page LOOKS like (the 3-second read).
+3. **On-page text caps** — headline ≤10 words, sub-text ≤25 words, numbers + nouns only, no adjectives.
+4. **Image prompt** — full GeminiGen.AI nano-banana-pro prompt (40-100 words) with aspect_ratio + theme + reference images noted.
+5. **Optional video prompt** — Seedance 2.0 4-block prompt when motion adds clarity (demos, animated charts, transitions).
+6. **Optional Remotion JSON** — when programmatic motion needed (live data, animated counters, parallax).
+7. **Copy + CTA** — finalized headline + sub-text + CTA line + (where applicable) pricing tier articulation, bilingual variant if requested.
+8. **Framework pre-empt** (decks) OR **layout-grammar slot** (print) — decks: which of 10 standard investor questions this slide pre-empts. Print: which framework slot the page fills + fold-line / module position confirmation.
 
-## The 10-slide narrative arc
+## 9 output_types
 
-Adapted from Sequoia + DocSend reading-time data, dual-mode aware:
+| output_type | mode | default pages | typical use |
+|---|---|---|---|
+| `deck-vc` | Deck | 10-13 | Series A/B fundraise |
+| `deck-b2b` | Deck | 10-13 | Channel partner pitch (mall/EO/operator) |
+| `deck-hybrid` | Deck | 10-13 | Mixed VC + B2B audience |
+| `brochure-product` | Print | 5-10 | Product spec + pricing handout |
+| `portfolio-personal` | Print | 8-20 | Designer/dev/consultant portfolio |
+| `portfolio-agency` | Print | 8-20 | Agency capability deck |
+| `catalog-product` | Print | 8-24 | Multi-SKU catalog |
+| `service-flyer` | Print | 1-2 | Above-the-fold service pitch |
+| `trifold-leaflet` | Print | 6 panels | DL-envelope distributable |
 
-| # | Slide | VC Mode emphasis | B2B Mode emphasis |
-|---|-------|------------------|-------------------|
-| 1 | Title / Vision | Company name + one-line "what" + ask amount | Product name + venue logo lock-up + one-line ROI promise |
-| 2 | Problem | Visceral pain in market, sized | Operator's daily pain (queues, shrinkage, no insight) — visual not stat |
-| 3 | Solution | Product demo screenshot + the "secret" | Before/after operator dashboard, on-the-ground photo |
-| 4 | Market / Traction | TAM / SAM / SOM bottom-up + traction | Comparable venues already running, GMV uplift % |
-| 5 | Product | One headline feature, animated | Three pillars (POS + Wristband + Control Room) icon grid |
-| 6 | Business Model / ROI | Unit economics, LTV/CAC | Operator P&L: cost vs uplift in IDR with payback months |
-| 7 | Competition | Honest 2x2 with axes that flatter us truthfully | Yukk feature gap matrix — what they don't have |
-| 8 | Team | Founder–market fit + key hires | Same + on-the-ground deployment team + support SLA |
-| 9 | Roadmap / AI | What we'll ship next 12 months | What value lands at venue this quarter (analytics agent, ads agent, social agent) |
-| 10 | Ask / CTA | Round size, use of funds, milestones | Pilot terms, revenue share / fee, integration timeline |
+7 named theme presets pair with any output_type: `indusia-tech`, `minimalist-editorial`, `industrial-brutalist`, `premium-luxe`, `pastel-soft`, `brutalist-mono`, `indo-tropical`. See [CLAUDE.md](CLAUDE.md) for the full theme map.
 
-`pitch-deck-gen` auto-selects the right emphasis after detecting audience type.
+## Validation gate — DUAL RUBRIC
 
-## Validation gate (100-point Pitch Deck Quality Score)
+The validator auto-selects between two 100-point rubrics based on `output_type`:
 
-A deck cannot ship until it passes `/pitch-deck-validate`. Five categories, all mandatory:
+**Deck mode** (deck-vc, deck-b2b, deck-hybrid):
 
 | Category | Weight | What it checks |
 |----------|--------|----------------|
-| Visual Ratio | 25 | Each slide ≥70% visual / ≤30% text. Hard-fail any slide under 60% |
-| Narrative Arc | 20 | Hook in slide 1–2, tension built across 3–6, payoff at 7–8, ask at 10. Story spine intact. |
-| Ask Clarity | 15 | Specific number, specific use of funds (or specific pilot terms for B2B), milestone attached |
-| Investor Psychology | 20 | First-90-second filter passed, all 10 standard investor questions pre-empted, pattern matched to known winner |
-| Anti-AI-Slop | 20 | No banned vocab (Unlock, Unleash, Empower, Supercharge, Maximize), no generic gradient backgrounds, no stock-photo handshakes, no clichéd icons (light bulb = innovation, gear = tech) |
+| Visual Ratio | 25 | Each slide ≥70% visual; hard-fail any < 60% |
+| Narrative Arc | 20 | Hook in 1-2, payoff by 8, ask in 10 |
+| Ask Clarity | 15 | Specific number + use of funds + milestone (VC) OR pilot scope + terms + deadline (B2B) |
+| Investor Psychology | 20 | First-90-sec filter passed, 10 standard Qs pre-empted, pattern-matched |
+| Anti-AI-Slop | 20 | No banned vocab, no AI-cliché visuals, no hallucinated traction |
 
-Combined ≥70 to publish. Visual Ratio is a hard gate — under 60% = automatic reject regardless of other scores.
+**Print mode** (brochure-product, portfolio-*, catalog-product, service-flyer, trifold-leaflet):
 
-## Pipeline
+| Category | Weight | What it checks |
+|----------|--------|----------------|
+| Visual Ratio | 25 | Each page ≥70% visual; hard-fail any < 60% |
+| Framework Fit | 15 | Mandatory pages present, page sequence matches framework, modular content per spec |
+| CTA Clarity | 15 | Cover CTA + back-cover contractual CTA + per-page CTA on multi-page collateral |
+| Print Readiness | 20 | CMYK + 3-5mm bleed + 300dpi raster + embedded fonts + no overprint errors |
+| Anti-AI-Slop | 25 | No banned vocab (incl. print-mode additions), no 8-pattern visual cliches, no unsourced stats |
+
+Combined ≥70 to publish. Visual Ratio under 60% on any page = automatic reject regardless of other scores. Print Readiness missing any one of CMYK / bleed / 300dpi / fonts = automatic reject.
+
+## Pipeline diagram
 
 ```
-[STAGE 1 — pitch-deck-brief]
-brief input (one paragraph + Q&A)
-   → product, audience, ask, traction, comparables, constraints
-       → mode detection (VC | B2B | hybrid)
+[STAGE 1 — ai-business-document-brief]
+brief input (paragraph + Q&A)
+   → output_type detection (one of 9)
+       → audience + density-mode + language + theme + PDF mode
            → output: brief.json
 
-[STAGE 2 — pitch-deck-storyline]
+[STAGE 2 — ai-business-document-narrative]
 read brief.json
-   → narrative arc design (hook + tension + payoff + ask)
-       → emotional core selection (Fear/Loss vs Greed/Gain vs Identity vs Curiosity)
-           → pattern-match selection ("we're [winner] for [our niche]")
-               → 10-slide story spine with audience-mode emphasis
-                   → output: storyline.md + storyline.json
-                       → HUMAN APPROVAL GATE
+   → decks: hook + tension + payoff + ask + pattern-match + 10-slide spine
+   → print: modular page layout + fold-line safe zones + page sequence
+       → output: narrative.md + narrative.json
+           → HUMAN APPROVAL GATE #1
 
-[STAGE 3 — pitch-deck-gen]
-read storyline.json
-   → per-slide visual concept
-       → image prompt (GeminiGen.AI nano-banana-pro)
-           → video prompt (Seedance 2.0 4-block) where motion adds value
-               → optional Remotion config (programmatic motion)
-                   → speaker notes (80-150 words per slide)
-                       → output: deck.md + image-prompts.json + video-prompts.json + remotion.config.json + speaker-notes.md
+[STAGE 3 — ai-business-document-copywriting]
+read narrative.json
+   → per-page headline + sub-text + CTA + pricing tier articulation
+       → output: copy.json
+           → HUMAN APPROVAL GATE #2
 
-[STAGE 4 — pitch-deck-validate]
-read deck.md
-   → 100-point scoring gate
-       → output: validation-report.json
-           → publish (if pass) or send back to relevant upstream stage (if fail)
+[STAGE 4 — ai-business-document-gen]
+read narrative.json + copy.json
+   → per-page visual concept + image prompt + video prompt + Remotion + HTML/CSS + speaker notes
+       → output: deck.md / document.md + image-prompts.json + video-prompts.json + (optional) PDF
+
+[STAGE 5 — ai-business-document-validate]
+read deck.md / document.md
+   → mode detection (deck rubric vs print rubric)
+       → 100-point scoring gate
+           → output: validation-report.json
+               → publish (if pass) or send back to relevant upstream stage
 ```
 
-Operator's downstream workflow: feed image prompts to GeminiGen.AI, render in Canva or Pitch.com, paste speaker notes underneath each slide, present.
+Operator's downstream workflow: feed image prompts to GeminiGen.AI, render via Playwright (html-css mode), img2pdf (full-image mode), or hand off to InDesign (spec-only mode).
 
 ## Reference architecture
 
-11 reference files as RAG knowledge base — see [CLAUDE.md](CLAUDE.md) for the full map.
-
-| File | Used for |
-|------|---------|
-| `references/global-config.md` | ALWAYS read first — language, visual ratios, banned vocab, scoring thresholds |
-| `references/research/investor-pitch-deck-best-practices-2026.md` | Cached NotebookLM deep-research synthesis (Sequoia, YC, Kawasaki, DocSend, Indonesian VC landscape) |
-| `references/deck-frameworks.md` | The 10-slide arc, dual-mode emphasis tables, alternative frameworks |
-| `references/investor-psychology.md` | First-90-second filters, the 10 standard investor questions, pattern-matching biases |
-| `references/storyline-frameworks.md` | Narrative arc design — hook formulas, tension-build patterns, emotional core selection (Fear/Greed/Identity/Curiosity), pattern-match library, story spine templates |
-| `references/visual-language.md` | Cognitive load research, text-to-visual ratio rules, typography for projection, anti-AI-slop visual rules |
-| `references/image-prompt-templates.md` | GeminiGen.AI / Nano Banana Pro prompt formulas per slide type, with worked examples |
-| `references/seedance-prompt-templates.md` | Seedance 2.0 4-block prompts adapted for slide motion (demo loops, animated charts, transitions) |
-| `references/remotion-config-templates.md` | Remotion JSON templates for programmatic motion (animated counters, live data, parallax) |
-| `references/indonesian-context.md` | Bahasa pitch culture, IDR formatting, Indonesian VC landscape, compliance signals (BI, OJK, ISO) |
-| `references/b2b-channel-partner-playbook.md` | B2B-mode specifics: ROI calculator structure, risk-reversal, integration cost, case study format |
-| `references/scoring-rubric.md` | The 100-point validation gate — exact thresholds, traffic-light bands |
+25+ reference files as a layered RAG knowledge base — `global-config.md` is single source of truth (visual ratios, banned vocab, output_types, themes, PDF modes); `scoring-rubric.md` holds dual rubrics; `frameworks/*.md` (8 framework files, one per output_type) hold per-format narrative + layout contracts; `themes/*.md` (7 theme files) declare palette + typography + illustration; supporting files cover visual language, layout grammar, copywriting patterns, image/video/Remotion prompt templates, HTML+CSS print stylesheets, safety filter mitigation, business model patterns, investor psychology, B2B playbook, Indonesian context, and cached research. See [CLAUDE.md](CLAUDE.md) for the full per-stage cheat sheet.
 
 ## License
 
