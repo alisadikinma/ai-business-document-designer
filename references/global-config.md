@@ -147,6 +147,14 @@ Every deck MUST declare a brand palette in `brief.json.brand_palette` before `pi
 
 **Indonesian banned words:** `solusi terbaik`, `inovatif`, `terdepan`, `terbaik di kelasnya`, `revolusioner`, `mengubah cara`, `mendisrupsi`. Replace with concrete numbers or remove.
 
+### Print-mode vocabulary additions (extending §4 for multi-format scope)
+
+The base list above applies to ALL output types (decks AND print collateral). When generating brochure / portfolio / catalog / flyer / leaflet copy, ALSO ban these recurring consultant-deck markers that frequently surface in B2B Indonesian print collateral:
+
+`next-gen` · `cutting-edge` · `best-in-class` · `state-of-the-art` · `industry-leading` · `mission-critical` · `paradigm-shift` · `synergy`
+
+These overlap partially with §4 (Cutting-edge, Best-in-class, Next-generation already listed) but are repeated here as a flat scannable lint target. Print copywriting skill must reject any of these on `copy.json` review before the gen stage runs.
+
 ---
 
 ## 5. AI-slop visual ban list
@@ -302,3 +310,64 @@ output-dir/
 | `validation-report.json` | v1.0 |
 
 Bump on any breaking change. See `scripts/compile-references.sh` (future) for downstream tooling that depends on these schemas.
+
+---
+
+## 15. Output Types (multi-format)
+
+The plugin handles 9 distinct output types across two families: **decks** (narrative pitch, slide format) and **print collateral** (modular page, A4/A3 format). Each output_type slug maps to one framework file in `references/frameworks/<slug>.md` and routes through the same 5-stage pipeline with stage-specific behavior per type.
+
+| output_type slug | display name | aspect ratio | default page count | mandatory pages | optional pages |
+|---|---|---|---|---|---|
+| `deck-vc` | VC Pitch Deck | 16:9 | 10-13 | hook, problem, solution, market, traction, business-model, competition, team, ask | why-now, moat, roadmap, appendix-financials |
+| `deck-b2b` | B2B Partnership Deck | 16:9 | 10-13 | hook, pain, solution, ROI, integration, traction, team, commercial-terms, deadline | proof-points, case-study, appendix-tech |
+| `deck-hybrid` | VC + B2B Hybrid Deck | 16:9 | 10-13 | hook, problem, solution, market, traction, business-model, team, ask | b2b-pilot-track, vc-round-track, appendix |
+| `brochure-product` | Product Brochure | A4-portrait | 5-10 | cover, hero-claim, feature-modules, pricing, CTA, back-contact | testimonial, spec-sheet, comparison |
+| `portfolio-personal` | Personal Portfolio | A4-portrait | 8-20 | cover, about, case-study (×3-5), skills, contact | testimonial, process-page, awards |
+| `portfolio-agency` | Agency Portfolio | A4-portrait | 8-20 | cover, brand-intro, service-grid, case-study (×3-6), team, contact | client-logo-strip, process, awards |
+| `catalog-product` | Product Catalog | A4-portrait | 8-24 | cover, category-divider, product-grid, spec-table, order-channel, back-contact | promo-strip, distributor-list, regulatory-strip |
+| `service-flyer` | Service Flyer | A4-portrait | 1-2 | hero-claim, 3-benefit, CTA, contact | secondary-detail, pricing-tier |
+| `trifold-leaflet` | Trifold Leaflet | A3-landscape-folded | 6 panels | front-panel-cover, inside-panel-1, inside-panel-2, inside-panel-3, back-panel-CTA, mailer-panel | promo-strip |
+
+> Aspect ratio note: `A4-portrait` = 210×297mm, `A3-landscape-folded` = 297×420mm folded twice to 99×210mm (DL envelope size, the Indonesian printer default). See `references/research/pdf-print-production-2026.md §2` for trim/safe/bleed math per format and `references/research/indonesian-print-culture-2026.md §1` for paper stock pairings.
+
+> Page count rationale: deck range follows DocSend median (10-13 active core, see §7 above). Brochure 5-10 = front-cover + 3-8 modular content + back. Portfolio 8-20 accommodates 3-6 case studies at 1-3 pages each. Catalog scales with SKU count. Flyer is 1-2 page above-the-fold. Trifold is structurally fixed at 6 panels.
+
+---
+
+## 16. Theme Registry
+
+7 named themes available. Each theme has its own preset file at `references/themes/<slug>.md` (created in Phase D) declaring color palette (4-6 hex), typography (3-tier), illustration style, layout grammar, and theme-specific anti-AI-slop banlist.
+
+| theme slug | mood | color signature | typography signature | suitable_for |
+|---|---|---|---|---|
+| `indusia-tech` | technical, premium, B2B-credible | dark navy `#0F1F3D` + cyan + gold accent | sans-serif display + mono labels + isometric 3D illustration | deck-b2b, deck-vc, brochure-product (tech), portfolio-agency |
+| `minimalist-editorial` | calm, considered, editorial | cream `#F8F4ED` + ink black | serif display + sans body + heavy whitespace | portfolio-personal, brochure-product (premium), deck-hybrid |
+| `industrial-brutalist` | raw, mechanical, declassified | black + white + signal red | mono display + grotesk body + grid-violation layouts | portfolio-agency, deck-b2b (industrial vertical), brochure-product (B2B heavy industry) |
+| `premium-luxe` | wealthy, spacious, gallery | gold + ivory + warm black | serif display + thin sans body + generous leading | brochure-product (luxury), portfolio-personal (high-fee), catalog-product (premium goods) |
+| `pastel-soft` | friendly, accessible, consumer | soft pastels + rounded forms | rounded sans (Nunito, Quicksand) + friendly body | service-flyer (B2C), brochure-product (F&B, kids, lifestyle), catalog-product (consumer) |
+| `brutalist-mono` | type-only, anti-design, intentional | pure black + pure white + one signal | grotesk display in extreme weights + grid-violation | portfolio-personal (designer), portfolio-agency (creative studio) |
+| `indo-tropical` | warm, rooted, Indonesian | warm earth tones + batik motif accents | display sans + body serif + batik pattern fill | brochure-product (tourism, F&B Indonesian), portfolio-agency (Indonesian-rooted), catalog-product (kerajinan, kuliner) |
+
+See `references/research/design-fundamentals-2026.md §4` for color psychology guidance per audience archetype, `§3` for typography pairing logic, and `references/research/indonesian-print-culture-2026.md §5` for `indo-tropical` cultural-signal mapping.
+
+> Operator override: brand palette declared in `brief.json.brand_palette` always overrides theme palette. Theme provides skeleton (typography, illustration style, layout grammar); brand palette overrides color. See §3.6 above.
+
+---
+
+## 17. PDF Output Modes
+
+The gen stage emits one of three output modes per `brief.json.output_mode`. Each mode has different downstream tooling, time-to-render, and operator-edit-ability after generation.
+
+| mode slug | description | render path | best for | trade-offs |
+|---|---|---|---|---|
+| `html-css` | HTML + print CSS rendered to PDF via headless Chromium | Playwright `page.pdf({ printBackground: true, format: 'A4', margin: { ... } })` | Multi-page text-heavy collateral, when operator wants version-control friendly source + ability to re-edit later | Requires Node.js + Playwright install. CMYK fidelity depends on `-webkit-print-color-adjust`; for true CMYK use mode `full-image` or post-process via Ghostscript. See `references/research/pdf-print-production-2026.md §9`. |
+| `full-image` | One NB2-generated image per page at 1240×1754px @ 300dpi (A4 portrait), Pillow / img2pdf merge to single PDF | Python: NB2 per-page batch → Pillow → img2pdf → output.pdf | Photo-heavy formats (brochure-product, portfolio-personal, catalog-product), when visual ratio must be ≥85% per page and HTML+CSS would feel template-y | Each page is a flat image — no live text, no a11y, no post-edit without re-render. Larger file size (~20-80MB for 8 pages). |
+| `spec-only` | JSON layout spec + image prompt array — no PDF rendered; operator assembles manually in Canva / Figma / InDesign | Output `spec.json` + `image-prompts.json` only | When the operator wants final assembly control, or when print shop requires native InDesign source for offset printing | No PDF artifact. Operator must execute the spec by hand or via Canva/Figma API. Longer total turnaround. |
+
+> Default mode per output_type (when operator does not specify):
+> - decks (deck-vc, deck-b2b, deck-hybrid) → `html-css` (legacy default, current `pitch-deck-gen` behavior)
+> - brochure-product, catalog-product → `full-image` (photo-heavy)
+> - portfolio-personal, portfolio-agency → `full-image` (visual-led)
+> - service-flyer, trifold-leaflet → `html-css` (text+layout dense)
+> - any output_type with `print_shop_offset: true` in brief → `spec-only` (let the shop assemble in InDesign)

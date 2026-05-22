@@ -232,3 +232,104 @@ Before approving an Indonesian-targeted deck, verify:
 - [ ] Bottom-up TAM (top-down rejected post-eFishery)
 
 If any unchecked, send back to relevant upstream skill before publication.
+
+---
+
+## 11. Print Production Specifics
+
+> Applies when `output_type` is one of: `brochure-product`, `portfolio-personal`, `portfolio-agency`, `catalog-product`, `service-flyer`, `trifold-leaflet` (i.e., print collateral, not slide decks). Backbone source: `references/research/indonesian-print-culture-2026.md §1-§7`.
+
+### 11.1 Paper Stock Standard
+
+Indonesian printers (Batam, Jakarta, Bandung, Surabaya) operate on a small set of standard paper stocks. Picking the right gsm + finish is the difference between "feels premium" and "feels amatir."
+
+| Stock | gsm | Typical use | Aesthetic implication |
+|---|---|---|---|
+| Art paper 120-150gsm | 120 / 150 | Flyer 1-pager, leaflet inside pages, mass-distribution brochure | Light, foldable, cost-effective. Reads "promo / mass-market" |
+| Art paper 210gsm | 210 | Brochure cover, mid-range product brochure inside pages | Mid-weight, holds color well. Reads "standard B2B" |
+| Art carton 260gsm | 260 | Premium brochure cover, business-card-adjacent flyers, portfolio cover | Heavy, premium feel. Reads "serius / premium" |
+| Art carton 310gsm | 310 | Hardcover binding inside cards, premium catalog cover | Very heavy. Reserved for portfolio / luxe brochure |
+| Ivory / HVS 70-100gsm | 70-100 | Text-heavy interior pages (catalog SKU lists, portfolio case study text) | Matte, low ink absorption, easy to read. Reads "considered / editorial" |
+| Matt-doff laminate | n/a | Applied to art carton 260+ | Velvety touch, mute reflection. Reads "premium / understated / B2B-credible" |
+| Glossy laminate | n/a | Applied to art paper 150+ | Reflective, vivid. Reads "consumer / promo / F&B / kids" |
+| Hardcover binding | n/a | Portfolio (8-20 page), premium agency capability brochure | Significantly raises perceived value; cost multiplier 3-5× vs saddle-stitch |
+
+Default recommendations per output_type:
+
+- `brochure-product` (B2B technical): art carton 260gsm cover + art paper 150gsm inside + matt-doff laminate
+- `brochure-product` (consumer F&B / lifestyle): art paper 150gsm cover + 120gsm inside + glossy laminate
+- `portfolio-personal` / `portfolio-agency` (premium positioning): art carton 310gsm cover + art paper 210gsm inside + matt-doff laminate + hardcover binding
+- `service-flyer`: art paper 150gsm single sheet, glossy or matt depending on audience
+- `trifold-leaflet`: art paper 150gsm folded; matt finish preferred for B2B
+- `catalog-product` (heavy SKU): ivory 80gsm inside + art carton 260gsm cover; saddle-stitch binding for ≤24 page, perfect-bind for 24+
+
+See `references/research/indonesian-print-culture-2026.md §1` for full paper-stock comparison and pricing-per-gsm benchmarks.
+
+### 11.2 Printer SOP
+
+| Aspect | Standard expectation |
+|---|---|
+| Turnaround (Batam, Jakarta, Bandung) | 1-3 days for digital press <500 unit; 3-7 days for offset 500-5000 unit; 7-14 days for offset 5000+ |
+| Minimum order quantity (MOQ) | Digital press: 50 unit (some shops 1 unit). Offset: 500 unit typical, 1000-2000 unit for cost-efficient pricing |
+| Ongkir framing | Ongkir di luar harga cetak; biaya kirim Batam-Jakarta ~Rp 50-150rb per kilo via JNE Trucking / J&T Cargo |
+| File spec preferred | PDF/X-4, CMYK with FOGRA51 ICC, 3mm bleed all 4 sides, fonts outlined OR fully subset-embedded, crop marks visible |
+| File spec hazard | Microsoft Word DOC / native Canva export often arrives RGB without bleed → printer charges re-setup Rp 50-150rb per file OR rejects |
+| Delivery format | PDF via WhatsApp + WeTransfer is standard. Google Drive accepted. Email attachment only if <25MB |
+| Proofing | Digital soft-proof via WhatsApp PDF approval is common; physical hardcopy proof costs Rp 50-200rb + 1 extra day |
+
+See `references/research/indonesian-print-culture-2026.md §2` for regional profile differences (Batam FTZ vs Jakarta vs Bandung) and `§2.5` for file submission checklist.
+
+### 11.3 Bilingual Convention
+
+| Audience | Language pattern |
+|---|---|
+| Bahasa-primary B2B Indonesia (sawit, logistik, manufaktur owner) | Bahasa Indonesia headline + Bahasa sub-text. English only for technical loanwords (`ROI`, `SaaS`, `API`) |
+| Bilingual (Bahasa-first export, multinational, mall, hotel) | Bahasa Indonesia headline + English subtitle in smaller type (e.g., 70% size). Sub-text Bahasa primary, English where useful |
+| English-first (Singapore B2B, US export, multinational HQ in Jakarta) | English headline + Bahasa subtitle only when culturally relevant (e.g., partner names, product names already in Bahasa) |
+| Hokkien / Mandarin context (B2B ethnic-Chinese ownership in Batam, Medan, Surabaya, Pontianak) | Bahasa Indonesia primary on document body, BUT relationship signals on contact page should reflect: WeChat ID alongside WhatsApp, Mandarin/Hokkien greeting if appropriate, sometimes Chinese characters for company name watermark. Common in Batam logistik (PT trucking + cargo), Medan F&B distribution, Surabaya wholesale |
+
+Cite `references/research/indonesian-print-culture-2026.md §3` for full bilingual hierarchy patterns and `§5` for ethnic-Chinese B2B visual signals.
+
+### 11.4 Regulatory Disclaimer
+
+| Disclaimer | When required | Placement convention |
+|---|---|---|
+| PT / CV legal entity name + NPWP | All B2B collateral, mandatory for invoice issuance | Back-cover or final-page contact strip, smaller type (10-12pt) |
+| PPN 11% inclusion vs exclusion | All pricing-bearing collateral (brochure with prices, catalog) | Adjacent to every price. Format: `Rp 305jt (sudah termasuk PPN 11%)` OR `Rp 305jt (belum termasuk PPN 11%)` — never ambiguous |
+| BPOM certification number | Consumer food, cosmetics, healthcare products | Back-panel or label area; format `BPOM RI MD/ML xxxxxxxxxx` |
+| Sertifikat halal (MUI / BPJPH) | F&B products targeting Muslim majority market | Logo placement front-cover or product detail page |
+| ISO 9001 / ISO 14001 / ISO 27001 | B2B service quality / environmental / data security signal | Back-cover logo strip alongside partner logos |
+| ISPO / RSPO | Palm oil and palm-oil-derived consumer products | Mandatory in palm-adjacent F&B, voluntary signal otherwise |
+| Kominfo / PDP Law compliance | Digital service consumer collateral | Footer of digital-bearing brochure pages, small type |
+
+See `references/research/indonesian-print-culture-2026.md §4` for PPN 2025 enforcement details and `§5` for ISO logo placement conventions.
+
+### 11.5 Owner-Archetype Perception
+
+What looks "serius" vs "amatir" to the Indonesian B2B owner (sawit / logistik / manufacturing / wholesale) — the typical purchaser of premium B2B services:
+
+| Visual signal | Reads as | Why |
+|---|---|---|
+| Dark navy `#0F1F3D` + gold accent + matt-doff laminate | Serius, premium, B2B-credible | Pattern-matches established banking / consultancy / oil-and-gas brand aesthetics |
+| Red `#C8102E` + gold + ornament | Ethnic-Chinese B2B signal, prosperous, festive | Lunar New Year palette resonance; common in Medan / Batam / Pontianak business communities |
+| Green `#006C35` + crescent or geometric Islamic motif | Halal-adjacent / Islamic finance / muslimah market | Cultural-religious signal for Muslim-majority audiences |
+| Red + white (Indonesian flag adjacency) | Nationalist, local-rooted, government-adjacent | Useful for products targeting BUMN tender or "lokal asli" positioning |
+| Purple-blue gradient + corporate memphis illustration + glossy laminate on cheap paper | Amatir, AI-generated, mass-market discount | Pattern-matches Bukalapak / Tokopedia promo flyers + AI design tool defaults |
+| Photo of Western model in suit + handshake stock | Amatir, lazy, not-localized | Owner reads: "tidak relevan dengan saya" |
+| Hexagon tech pattern + glassmorphism + neon | Amatir tech-flavored, AI-generated | Owner reads: "anak muda main-main, bukan untuk bisnis serius" |
+
+See `references/research/indonesian-print-culture-2026.md §5` and `§7` for full archetype mapping and agency style references.
+
+### 11.6 Headline Convention Bahasa
+
+Three distinct tonal registers for Bahasa headline writing per audience:
+
+| Audience | Tone | Pattern | Example |
+|---|---|---|---|
+| B2B owner (sawit, logistik, manufaktur) | Langsung, hitung-hitungan IDR, concrete | `[Outcome / number] dengan [mechanism]` | `Turunkan biaya solar Rp 12jt/bulan dengan fuel sensor IoT` |
+| B2C consumer (F&B, lifestyle, family) | Aspirational, family-frame, emotional | `[Aspiration] untuk [family / lifestyle anchor]` | `Sarapan keluarga lebih hangat — kopi tubruk dari biji petani Aceh` |
+| Hokkien-flavored B2B (Batam / Medan logistik, wholesale) | Conversational, sometimes mixed Bahasa-Hokkien-English | `[Direct command / observation in mixed register]` | `Liat semua armada dari HP — gak pakai nunggu kasih kabar` · `Stop kencing solar di kendaraan, pasang sensor sekali jalan tenang` |
+
+For all three registers: numbers in IDR (Rp xx jt / Rp xx M), proper nouns for places (Batam / Medan / Surabaya / Jakarta), and zero adjective-stacking ("solusi terbaik dan terdepan" is banned per `global-config.md §4`).
+
+See `references/research/indonesian-print-culture-2026.md §6` for full Bahasa headline tonal registers and `references/research/business-model-patterns-2026.md §7` for brochure articulation patterns by audience archetype.

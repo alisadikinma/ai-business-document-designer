@@ -399,3 +399,119 @@ Before finalizing any image prompt, run this 5-question check:
 5. **Did I avoid the cliché bank?** No purple gradients, no holographic UI, no light bulb, no handshake, no globe, no neural network blob.
 
 If any answer is "no" or "I'm not sure," rewrite the prompt before sending to GeminiGen.AI.
+
+---
+
+## 14. Print-Specific Visual Rules
+
+> Applies when `output_type` is one of: `brochure-product`, `portfolio-personal`, `portfolio-agency`, `catalog-product`, `service-flyer`, `trifold-leaflet`. Decks (deck-vc, deck-b2b, deck-hybrid) skip this section by default unless the operator flags `print_export: true` in `brief.json`.
+
+> Backbone sources: `references/research/pdf-print-production-2026.md §1-§7` (color, bleed, resolution, fonts, PDF/X, overprint) and `references/research/design-fundamentals-2026.md §2-§6` (grids, typography, color, flow, whitespace).
+
+### 14.1 CMYK Color Space
+
+| Setting | Value |
+|---|---|
+| `mandatory_when` | Output destined for offset printing (any print run ≥500 units in Indonesia per `references/research/indonesian-print-culture-2026.md §2`) |
+| `digital_tolerance` | RGB acceptable for digital-only distribution + small digital-press runs (≤50 units); convert at PDF export, not in source files |
+| `default_icc_profile` | FOGRA51 (coated paper, EU/Indonesia default) — see `references/research/pdf-print-production-2026.md §1` |
+| `alt_icc_profile_GRACoL_2013` | North America coated, use when print shop is US-based |
+| `alt_icc_profile_SWOP` | North America uncoated (newsprint, low-quality stock) |
+| `do_not` | Mix RGB and CMYK assets in one PDF — will cause color shift on press |
+
+Operational rule: every raster asset destined for print must be CMYK-tagged at export. SVG and CSS-defined colors should declare CMYK fallback via `color-profile` where the print stylesheet supports it; otherwise convert via Ghostscript pre-handoff. RGB-only blues and greens shift dramatically on press (sRGB cyan `#00FFFF` becomes a muted teal in CMYK) — preview every brand-critical color in a CMYK soft-proof before approval.
+
+### 14.2 Bleed & Safe Zone
+
+| Setting | Value |
+|---|---|
+| `default_bleed_indonesia_eu` | 3mm beyond trim line on all 4 edges |
+| `default_bleed_us` | 5mm (0.125") — US offset standard |
+| `safe_zone_interior_margin` | 3mm inward from trim (so safe zone = trim minus 3mm on each side) |
+| `critical_content_zone` | All text, logos, faces must sit inside safe zone — never within 6mm of trim edge |
+| `crop_mark_offset` | 3mm from trim, 6mm length, registration black `C=M=Y=K=100%` |
+
+Cite `references/research/pdf-print-production-2026.md §2` for full trim/safe/bleed math per format. For trifold-leaflet specifically, each panel needs its own bleed at the outer trim edges AND a 2mm tolerance on each fold line for paper drift. Indonesian printers typically auto-correct minor bleed shortfalls but charge re-setup fees (Rp 50-150rb per file) for missing bleed — set the standard at export.
+
+### 14.3 300dpi Raster Minimum
+
+| Asset type | Minimum dpi |
+|---|---|
+| Photography (full-color raster) | 300dpi at final print size |
+| Line art / mono raster (logos, icons exported as PNG) | 600dpi |
+| Background texture / fill | 300dpi |
+| Web-resolution placeholder | NEVER ship — flag at validate stage |
+
+Vectors are preferred for logos, icons, and any geometry. PNG/JPEG only when source is photographic or a complex gradient. NB2-generated images for `full-image` mode target 1240×1754px (A4 portrait @ 300dpi) — never upscale below this resolution. See `references/research/pdf-print-production-2026.md §3`.
+
+Quick math: a photo intended to print at 100×150mm needs at minimum a raster of `(100/25.4)*300 × (150/25.4)*300 = 1181 × 1772 px`. Below that, the image will pixelate on press.
+
+### 14.4 Font Embedding
+
+| Setting | Value |
+|---|---|
+| `embed_mode_preferred` | Subset embed (embed only glyphs used in document — smaller file, faster RIP) |
+| `embed_mode_alternative` | Full embed (embed entire font file — required for some PDF/X-1a flavors) |
+| `pdf_x_compliance` | PDF/X-4 default; PDF/X-1a for legacy print shops. Both require font embedding |
+| `fallback_font_hazard` | If a font is referenced but not embedded, the printer's RIP substitutes a fallback (often Courier or Arial) — silent corruption. Always preflight |
+| `licensing_note` | Some commercial fonts (e.g., certain Monotype, certain Adobe Originals) restrict subset embedding for distribution — read EULA before commercial print runs |
+
+Cite `references/research/pdf-print-production-2026.md §4` for full font embedding + PDF/X validation flow. Run Adobe Acrobat Preflight or Ghostscript `gs -dPDFA` check before sending to printer; both flag un-embedded fonts.
+
+### 14.5 Vector vs Raster
+
+| Use vector (SVG, PDF vector path) for | Use raster (PNG, JPEG) for |
+|---|---|
+| Logos | Photography |
+| Icons (Lucide, Phosphor, Heroicons) | Complex gradients with subtle tonal variation |
+| Simple geometric shapes (cards, dividers, callouts) | Textures (paper grain, fabric, scanned material) |
+| Charts (export from Chart.js, Recharts as SVG) | Painted illustrations |
+| Type set as outlines (only when fonts not embeddable) | Generated AI imagery (NB2, Gemini output is always raster) |
+
+Vector scales cleanly to any print size and embeds at trivial file weight (often ≤50KB per logo). Raster locks resolution at export time — once you ship a 300dpi raster at 100×150mm and someone wants to scale it to 200×300mm, the image breaks. Default: vector first, raster only when forced.
+
+---
+
+## 15. Anti-AI-Slop Banlist for Print (8 patterns)
+
+> Pulled verbatim from `references/research/design-fundamentals-2026.md §7`. These 8 patterns are the most recognizable signals of "AI-generated print collateral" in 2026. Validator (`scoring-rubric.md` Print-Mode Rubric §Anti-AI-Slop) hard-fails any output that contains ≥3 of these patterns.
+
+### 15.1 Purple-Blue Gradient Backdrop
+
+- **Why cheap:** Default of every AI image generator's "tech / business / corporate" prompt since 2023. Recognized instantly by anyone who scrolls LinkedIn.
+- **Correction:** Replace with one of: (a) real photographic environment relevant to the product (factory floor, mall corridor, palm oil mill — whatever matches the offering); (b) brand-palette flat-color fill from `brief.json.brand_palette`; (c) subtle paper-texture or duotone of an actual product photo.
+
+### 15.2 Stock Photo Handshake
+
+- **Why cheap:** Says nothing concrete. Signals "I had no real photo to use." Universally recognized as stock-shop placeholder.
+- **Correction:** Show the actual collaboration — named partner logos in a strip, signed contract close-up, real operator handing over a real artifact (the product itself, a check, a document). Specificity beats generic gesture.
+
+### 15.3 Hexagon Tech Icon (Generic Hex-Grid Tech Pattern)
+
+- **Why cheap:** Hexagon = "tech" is a children's-book metaphor. Recurring template in Shutterstock "technology" search.
+- **Correction:** Show the actual tech component — a printed circuit board photo, a real dashboard screenshot, an IoT sensor on the actual machine, a code snippet at appropriate scale. Concrete > abstract.
+
+### 15.4 Light Bulb Innovation Cliché
+
+- **Why cheap:** "Ideas = light bulb" is a Victorian-era visual joke that has been recycled to death. Pattern-matched by viewer to "AI-generated stock asset."
+- **Correction:** Show the innovation itself — the patent diagram, the before/after side-by-side, the specific mechanism that's new. If the innovation is conceptual, show the *result* (a number, a chart, a testimonial), not a metaphor.
+
+### 15.5 Faux 3D Glassmorphism Overuse
+
+- **Why cheap:** Frosted-glass cards with rainbow-edge gradients were a 2021 trend. By 2026, overuse signals "I downloaded a Figma template." Especially bad when applied to text-heavy collateral where the glass effect reduces legibility.
+- **Correction:** Use flat color cards with brand palette + clean drop-shadow (4-8px offset, single tone, low opacity). Reserve glassmorphism for at most one hero element per document, not the whole layout system.
+
+### 15.6 Oversaturated Palette
+
+- **Why cheap:** Default NB2 / Gemini / Midjourney palette skews vivid. Print reproduction shifts vivid further. Result: brochure looks like a discount-airline ad.
+- **Correction:** Desaturate brand palette by 10-15% before export. Soft-proof in CMYK. Trust muted color for B2B credibility (per `references/research/design-fundamentals-2026.md §4` and §14.1 above on CMYK shift).
+
+### 15.7 Broken Kerning / Lazy Tracking
+
+- **Why cheap:** AI-generated logo or title cards often have visually uneven letter spacing — letters too close or too far apart. Print reader notices in 0.5 seconds even without knowing the term.
+- **Correction:** Type all display text in real type tool (Figma, InDesign, even native HTML+CSS), not as part of an AI image. Apply optical kerning for headlines ≥36pt. See `references/research/design-fundamentals-2026.md §3` for typography hierarchy.
+
+### 15.8 Lazy Stock Illustrations (Corporate Memphis / Alegria style)
+
+- **Why cheap:** The flat-colored figure-with-disproportionate-limbs style (the "Corporate Memphis" / Facebook-2018 Alegria visual language) is recognized as the laziest tier of stock illustration. Anyone who scrolls SaaS landing pages can identify it.
+- **Correction:** Use either (a) real photography, (b) editorial / line-art illustrations commissioned or carefully styled, or (c) abstract geometric forms from a defined design system (see theme files in `references/themes/`). Never default to "corporate memphis."
