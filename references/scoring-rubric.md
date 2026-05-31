@@ -46,6 +46,10 @@ See `references/research/design-fundamentals-2026.md` for the design-quality bas
 - Closing slide is "Thank You" (not the ask)
 - Generated AI faces on the team slide
 - Top-down TAM with no bottom-up math
+- **(Deck modes) Any concept/data slide rendered as a bullet-card text wall instead of a `deck-infographic-system.md §3` component** — see `research/executive-deck-craft-2026.md §1,§5`
+- **(Deck modes) Any slide with a topic-label title instead of an action title** (a complete sentence stating the takeaway, ≤15 words) — see `research/executive-deck-craft-2026.md §3`
+- **(Deck modes) Any hedge word** ("I think", "maybe", "might", "possibly", "perhaps"; ID: "mungkin", "sepertinya", "kira-kira") — see `research/executive-deck-craft-2026.md §7`
+- **(Deck modes) >25 words of live body text on a slide, or any full sentence in the slide body** (beyond the action title) — see `research/executive-deck-craft-2026.md §4`
 
 ---
 

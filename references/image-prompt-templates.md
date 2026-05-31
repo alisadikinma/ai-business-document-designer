@@ -2,6 +2,8 @@
 
 > Use these templates ONLY after `visual-language.md` rules are internalized. Bad prompts produce AI-slop visuals that fail `pitch-deck-validate`.
 
+> **Deep NB2 prompt craft → `research/nano-banana-pro-prompting-2026.md`** (the Golden Rules, 6-component formula, in-image text rendering with the two-step + "quotes" technique, exact-hex brand control, ≤14-ref consistency, named-layout/named-style vocabulary, anti-slop + negative prompts, OCR/number QC). The formulas below are the plugin-specific application of that knowledge base.
+
 > **Density mode is the most important decision.** Read `brief.json.density_mode` first.
 > - `minimalist` (VC default) → use Photo formulas (slides 1–3 photo-led, charts elsewhere).
 > - **`humanized-info-dense` (B2B partnership DEFAULT v8.1+) → use Formula C (Humanized Hybrid) per §2.5. 40% human face + 60% infographic per body slide. MANDATORY for slides 1-5. See Indusia POS case study referenced in §2.5.4.**

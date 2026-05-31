@@ -1,7 +1,7 @@
 {
   "name": "ai-business-document-designer",
   "description": "Visual-first AI designer for business documents across formats: pitch decks (VC + B2B partnership), brochures (product/service), portfolios (personal + agency), product catalogs, service flyers, and trifold leaflets. Output-type-aware pipeline (brief → narrative/layout → copywriting → gen → validate) generates per-page specs with GeminiGen.AI / Nano Banana Pro image prompts, Seedance 2.0 video animation prompts, optional Remotion configs, HTML+CSS print stylesheets, and Indonesian-aware copywriting. Multi-framework adaptive with dual-mode emphasis tables, anti-AI-slop visual rules, named theme presets (industrial / minimalist / premium / brutalist / pastel / indo-tropical), print-readiness gates (CMYK, bleed, 300dpi, font embed), and a 100-point validation rubric (Visual Ratio + Narrative Arc + Framework Fit + CTA Clarity + Anti-Slop). Indonesian-first.",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "author": {
     "name": "Ali Sadikin",
     "url": "https://github.com/alisadikinma"

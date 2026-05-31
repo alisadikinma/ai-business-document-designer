@@ -17,8 +17,12 @@ Each skill reads relevant research file(s) via `--append-system-prompt-file` inj
 | framework-structures-2026 | [framework-structures-2026.md](./framework-structures-2026.md) | 59 | `pcd-frameworks` — `ff78748d-a62a-41b5-a22a-52277769cbe2` | [92MB MP3](./audio/framework-structures-2026.mp3) |
 | indonesian-print-culture-2026 | [indonesian-print-culture-2026.md](./indonesian-print-culture-2026.md) | 58 | `pcd-indo` — `d75e20bc-a851-44d8-8c94-4eff4e2f5668` | [64MB MP3](./audio/indonesian-print-culture-2026.mp3) |
 | business-model-patterns-2026 | [business-model-patterns-2026.md](./business-model-patterns-2026.md) | 39 | `pcd-bizmodel` — `ff5fbf31-80ae-4053-9e70-5419d7651396` | [109MB MP3](./audio/business-model-patterns-2026.mp3) |
+| executive-deck-craft-2026 | [executive-deck-craft-2026.md](./executive-deck-craft-2026.md) | 10 | `Pitch Deck Excellence + Nano Banana Pro RAG` — `1f9dbaf4-4087-4c84-af65-c1b0b21d92d2` | — |
+| nano-banana-pro-prompting-2026 | [nano-banana-pro-prompting-2026.md](./nano-banana-pro-prompting-2026.md) | 10 | `Pitch Deck Excellence + Nano Banana Pro RAG` — `1f9dbaf4-4087-4c84-af65-c1b0b21d92d2` | — |
 
-**Total**: 296 imported sources across 5 notebooks. 5 markdown reports (~46KB combined), 5 audio podcasts (403MB combined, kept locally, gitignored).
+**Total**: 316 imported sources across 6 notebooks. 7 markdown reports, 5 audio podcasts (403MB combined, kept locally, gitignored). (Also present: `investor-pitch-deck-best-practices-2026.md` — VC/DocSend lens.)
+
+> **2026-05-31 addition** (Gemini 3 backend, fast research): `executive-deck-craft-2026` and `nano-banana-pro-prompting-2026` were added to fix root-cause deck-quality issues (text-heavy, non-visual decks). They are the knowledge layer behind `../deck-infographic-system.md` (deck construction) and `../image-prompt-templates.md` (NB2 prompting).
 
 ## Coverage Map
 
